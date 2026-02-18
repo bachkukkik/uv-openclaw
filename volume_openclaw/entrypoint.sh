@@ -73,20 +73,14 @@ node -e '
 
 # 5. Start Gateway
 export HOME=/home/node
-export NPM_CONFIG_PREFIX=/usr/local/lib/npm-global
-export PATH="/usr/local/lib/npm-global/bin:$PATH"
 cd /home/node
 
 # Debug information
 echo "Current User: $(whoami)"
 echo "PATH: $PATH"
 
-OPENCLAW_BIN="/usr/local/lib/npm-global/bin/openclaw"
-
-if [ ! -f "$OPENCLAW_BIN" ]; then
-    echo "Warning: $OPENCLAW_BIN not found, trying fallback..."
-    OPENCLAW_BIN=$(command -v openclaw || which openclaw || echo "openclaw")
-fi
+# Try to find openclaw
+OPENCLAW_BIN=$(command -v openclaw || which openclaw || find /usr -name openclaw -executable | head -n 1 || echo "openclaw")
 
 echo "Starting OpenClaw from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
