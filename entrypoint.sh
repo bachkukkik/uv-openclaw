@@ -58,8 +58,20 @@ cd /home/node
 # Set explicit path
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Find binary
-OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1 || echo "openclaw")
+# Robust binary detection
+echo "Finding OpenClaw executable..."
+OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1 || echo "")
+
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Warning: openclaw binary not found in PATH. Checking npx..."
+    if command -v npx >/dev/null 2>&1; then
+        echo "Starting OpenClaw gateway via npx..."
+        exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
+    else
+        echo "Error: openclaw binary and npx are both missing."
+        exit 1
+    fi
+fi
 
 echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
