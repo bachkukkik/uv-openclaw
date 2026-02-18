@@ -83,23 +83,26 @@ cd /home/node
 # Set explicit path
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Binary detection with fallback
-OPENCLAW_BIN=""
-if command -v openclaw >/dev/null 2>&1; then
-    OPENCLAW_BIN=$(command -v openclaw)
-elif [ -x "/usr/local/bin/openclaw" ]; then
-    OPENCLAW_BIN="/usr/local/bin/openclaw"
-elif [ -x "/usr/bin/openclaw" ]; then
-    OPENCLAW_BIN="/usr/bin/openclaw"
-else
-    # Fallback search
-    OPENCLAW_BIN=$(find /usr -name openclaw -type f -executable | head -n 1)
+echo "Searching for OpenClaw..."
+
+# Try to find binary
+OPENCLAW_BIN=$(which openclaw || find /usr -name openclaw -type f -executable | head -n 1)
+
+if [ -n "$OPENCLAW_BIN" ]; then
+    echo "Starting OpenClaw gateway from binary: $OPENCLAW_BIN"
+    exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
 fi
 
-if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Error: openclaw binary not found."
-    exit 1
+# If binary not found, search for the package entry point directly
+echo "Binary not found, searching for package entry point..."
+ENTRY_JS=$(find /usr -name entry.js | grep "openclaw/dist/entry.js" | head -n 1)
+
+if [ -n "$ENTRY_JS" ]; then
+    echo "Starting OpenClaw gateway via node: $ENTRY_JS"
+    exec node "$ENTRY_JS" gateway --bind lan --port 18789 --allow-unconfigured
 fi
 
-echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
-exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
+echo "Error: Could not find OpenClaw binary or entry point."
+echo "System check:"
+npm list -g --depth=0
+exit 1
