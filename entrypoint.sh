@@ -17,8 +17,14 @@ node -e '
     process.exit(1);
   }
 
-  const defaultModel = env.OPENAI_DEFAULT_MODEL || "openai/gpt-4o";
+  // Get raw values
+  let defaultModel = env.OPENAI_DEFAULT_MODEL || "gpt-4o";
   const defaultProvider = env.DEFAULT_MODEL_PROVIDER || "openai";
+
+  // If model already contains provider (e.g. "openai/gpt-4o"), strip it for the model ID
+  if (defaultModel.includes("/")) {
+    defaultModel = defaultModel.split("/").pop();
+  }
 
   let config = {
     commands: { native: "auto", nativeSkills: "auto" },
@@ -78,13 +84,13 @@ node -e '
   config.agents = {
     defaults: {
       model: { 
-        primary: defaultModel.includes("/") ? defaultModel : defaultProvider + "/" + defaultModel 
+        primary: defaultProvider + "/" + defaultModel 
       }
     }
   };
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
-  console.log("OpenClaw configuration updated successfully (dynamic provider).");
+  console.log("OpenClaw configuration updated successfully.");
 '
 
 # 5. Start Gateway
