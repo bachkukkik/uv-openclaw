@@ -4,7 +4,7 @@ set -e
 # Ensure directory exists
 mkdir -p /home/node/.openclaw
 
-# 4. Configuration Script - Mapping all environment variables to openclaw.json
+# 4. Configuration Script
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -73,8 +73,32 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Try to find the binary in common locations
-OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1 || echo "openclaw")
+# Robust binary detection
+echo "Searching for openclaw binary..."
+OPENCLAW_BIN=""
 
-echo "Starting OpenClaw gateway..."
+if command -v openclaw >/dev/null 2>&1; then
+    OPENCLAW_BIN=$(command -v openclaw)
+else
+    # Try common npm global locations
+    for p in /usr/local/bin/openclaw /usr/bin/openclaw /opt/node/bin/openclaw; do
+        if [ -x "$p" ]; then
+            OPENCLAW_BIN="$p"
+            break
+        fi
+    done
+fi
+
+# Final fallback: use npx if installed
+if [ -z "$OPENCLAW_BIN" ]; then
+    if command -v npx >/dev/null 2>&1; then
+        echo "Binary not found in PATH, using npx fallback..."
+        exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
+    else
+        echo "Error: openclaw binary not found and npx is missing."
+        exit 1
+    fi
+fi
+
+echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured

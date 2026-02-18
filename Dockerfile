@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw
-RUN npm install -g openclaw --unsafe-perm
+# Setting prefix to /usr/local to ensure binary goes to /usr/local/bin
+RUN npm config set prefix /usr/local && \
+    npm install -g openclaw --unsafe-perm
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
