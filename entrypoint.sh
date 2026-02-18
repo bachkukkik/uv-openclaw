@@ -59,7 +59,7 @@ node -e '
     };
   }
 
-  // Identity/Defaults (Make it well-equipped)
+  // Identity/Defaults
   config.agent = config.agent || {};
   if (env.OPENAI_MODEL) {
     config.agent.model = env.OPENAI_MODEL;
@@ -75,14 +75,14 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Dynamic search for openclaw
-OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin /root/.openclaw/bin -name openclaw -type f -executable | head -n 1)
+# Find the entry point of the locally installed package
+ENTRY_JS=$(find /opt/openclaw/node_modules/openclaw -name entry.js | head -n 1)
 
-if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Warning: openclaw binary not found in PATH or common locations."
-    echo "Attempting to start via npx..."
-    exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
+if [ -z "$ENTRY_JS" ]; then
+    echo "Error: Could not find OpenClaw entry.js in /opt/openclaw/node_modules/openclaw"
+    ls -R /opt/openclaw/node_modules/openclaw
+    exit 1
 fi
 
-echo "Starting OpenClaw from: $OPENCLAW_BIN"
-exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
+echo "Starting OpenClaw from: $ENTRY_JS"
+exec node "$ENTRY_JS" gateway --bind lan --port 18789 --allow-unconfigured

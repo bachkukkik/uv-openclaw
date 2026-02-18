@@ -1,7 +1,7 @@
 ARG UV_IMAGE_TAG=python3.14-bookworm-slim
 FROM ghcr.io/astral-sh/uv:${UV_IMAGE_TAG}
 
-# 1. Install system deps, Node.js (for config script), and GH CLI
+# 1. Install system deps, Node.js, and GH CLI
 RUN apt-get update && apt-get install -y \
     curl \
     git \
@@ -16,8 +16,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y gh nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install OpenClaw
-RUN npm install -g openclaw --unsafe-perm
+# 2. Install OpenClaw locally in /opt/openclaw
+RUN mkdir -p /opt/openclaw && \
+    cd /opt/openclaw && \
+    npm init -y && \
+    npm install openclaw --unsafe-perm
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
@@ -28,7 +31,6 @@ RUN mkdir -p /home/node
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-ENV PATH="/usr/local/bin:/usr/bin:/bin:/root/.openclaw/bin:/home/node/.openclaw/bin:$PATH"
 
 EXPOSE 18789
 
