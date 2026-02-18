@@ -75,12 +75,21 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Debug information
-echo "Current User: $(whoami)"
-echo "PATH: $PATH"
-
-# Try to find openclaw
-OPENCLAW_BIN=$(command -v openclaw || which openclaw || find /usr -name openclaw -executable | head -n 1 || echo "openclaw")
+# Verify installation
+if ! command -v openclaw >/dev/null 2>&1; then
+    echo "Error: openclaw binary not found in PATH ($PATH)"
+    # Try manual search
+    FOUND=$(find /usr -name openclaw -executable | head -n 1)
+    if [ -n "$FOUND" ]; then
+        echo "Found at $FOUND, using it..."
+        OPENCLAW_BIN="$FOUND"
+    else
+        echo "Exiting."
+        exit 1
+    fi
+else
+    OPENCLAW_BIN=$(command -v openclaw)
+fi
 
 echo "Starting OpenClaw from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
