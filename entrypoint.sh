@@ -5,7 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
-# Updated for v2026.2.17 schema
+# Using a "Seed and Heal" strategy for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -21,60 +21,53 @@ node -e '
   if (fs.existsSync(path)) {
     try {
       config = JSON.parse(fs.readFileSync(path, "utf8"));
-    } catch (e) {
-      console.warn("Starting with fresh config.");
-    }
+    } catch (e) {}
   }
 
-  // Gateway Setup
+  // Gateway Setup (Stable)
   config.gateway = config.gateway || {};
   config.gateway.controlUi = config.gateway.controlUi || {};
   config.gateway.controlUi.allowInsecureAuth = true;
   config.gateway.trustedProxies = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"];
   config.gateway.auth = { mode: "token", token: token };
 
-  // Agents and Defaults (v2026 schema)
-  config.agents = config.agents || {};
-  config.agents.defaults = config.agents.defaults || {};
-  config.agents.defaults.model = config.agents.defaults.model || {};
-
-  // Map LLM settings
-  if (env.OPENAI_API_KEY) {
-    config.agents.defaults.model.primary = env.OPENAI_MODEL || "openai/gpt-4o";
+  // Seed with legacy structure to trigger OpenClaw\''s built-in auto-migration
+  // This is the most reliable way to handle schema changes between versions
+  config.agent = config.agent || {};
+  if (env.OPENAI_MODEL) {
+    config.agent.model = env.OPENAI_MODEL;
   } else if (env.GEMINI_API_KEY) {
-    config.agents.defaults.model.primary = "google/gemini-3-pro-preview";
+    config.agent.model = "google/gemini-3-pro-preview";
   }
 
-  // Providers Setup
-  config.agents.providers = config.agents.providers || {};
+  config.providers = config.providers || {};
   if (env.OPENAI_API_KEY) {
-    config.agents.providers.openai = {
+    config.providers.openai = {
       apiKey: env.OPENAI_API_KEY,
       baseUrl: env.OPENAI_API_BASE || undefined
     };
   }
   if (env.GEMINI_API_KEY) {
-    config.agents.providers.gemini = {
+    config.providers.gemini = {
       apiKey: env.GEMINI_API_KEY
     };
   }
 
-  // Tools Setup (Browserless)
-  config.agents.tools = config.agents.tools || {};
+  config.tools = config.tools || {};
   if (env.BROWSERLESS_BASE_URL) {
-    config.agents.tools.browserless = {
-      url: env.BROWSERLESS_BASE_URL,
-      token: env.BROWSERLESS_TOKEN || undefined
+    config.tools.browser = {
+      browserless: {
+        url: env.BROWSERLESS_BASE_URL,
+        token: env.BROWSERLESS_TOKEN || undefined
+      }
     };
   }
 
-  // Clean legacy keys
-  delete config.agent;
-  delete config.providers;
-  delete config.tools;
+  // Remove the new keys we tried earlier to start clean for the doctor
+  delete config.agents;
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
-  console.log("OpenClaw configuration updated successfully.");
+  console.log("OpenClaw seed configuration written.");
 '
 
 # 5. Start Gateway
@@ -85,21 +78,19 @@ cd /home/node
 export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
 # Binary detection
-echo "Searching for OpenClaw binary..."
 OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw/bin /home/node/.openclaw/bin /usr/local/bin -name openclaw -type f -executable | head -n 1)
 
 if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Emergency: OpenClaw not found. Attempting runtime install..."
-    export NO_ONBOARD=1
-    export OPENCLAW_NO_PROMPT=1
-    curl -fsSL https://openclaw.ai/install.sh | bash || true
-    OPENCLAW_BIN=$(find /root/.openclaw/bin /home/node/.openclaw/bin -name openclaw -type f -executable | head -n 1)
-fi
-
-if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Error: Failed to find or install OpenClaw."
+    echo "Error: openclaw binary not found."
     exit 1
 fi
 
-echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
+# Use OpenClaw\''s own migration engine to fix the config to the current version
+echo "Running openclaw doctor to migrate configuration..."
+"$OPENCLAW_BIN" doctor --fix || true
+
+echo "Fixed configuration:"
+cat /home/node/.openclaw/openclaw.json
+
+echo "Starting OpenClaw gateway..."
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
