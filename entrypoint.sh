@@ -80,29 +80,26 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Set explicit path
-export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+echo "Searching for OpenClaw entry point..."
 
-echo "Searching for OpenClaw..."
+# Find the global node_modules path
+NPM_ROOT=$(npm root -g)
+PACKAGE_DIR="$NPM_ROOT/openclaw"
 
-# Try to find binary
-OPENCLAW_BIN=$(which openclaw || find /usr -name openclaw -type f -executable | head -n 1)
+# Try different entry points
+for f in "$PACKAGE_DIR/index.js" "$PACKAGE_DIR/dist/entry.js" "$PACKAGE_DIR/bin/openclaw"; do
+    if [ -f "$f" ]; then
+        echo "Starting OpenClaw via node: $f"
+        exec node "$f" gateway --bind lan --port 18789 --allow-unconfigured
+    fi
+done
 
-if [ -n "$OPENCLAW_BIN" ]; then
-    echo "Starting OpenClaw gateway from binary: $OPENCLAW_BIN"
-    exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
+# Try calling it directly as a last resort
+if command -v openclaw >/dev/null 2>&1; then
+    echo "Starting OpenClaw gateway from binary path..."
+    exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
 fi
 
-# If binary not found, search for the package entry point directly
-echo "Binary not found, searching for package entry point..."
-ENTRY_JS=$(find /usr -name entry.js | grep "openclaw/dist/entry.js" | head -n 1)
-
-if [ -n "$ENTRY_JS" ]; then
-    echo "Starting OpenClaw gateway via node: $ENTRY_JS"
-    exec node "$ENTRY_JS" gateway --bind lan --port 18789 --allow-unconfigured
-fi
-
-echo "Error: Could not find OpenClaw binary or entry point."
-echo "System check:"
-npm list -g --depth=0
+echo "Error: Could not find OpenClaw entry point in $PACKAGE_DIR"
+ls -R "$PACKAGE_DIR" 2>/dev/null || echo "Package directory not found."
 exit 1

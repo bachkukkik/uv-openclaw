@@ -28,8 +28,6 @@ RUN mkdir -p /home/node/.openclaw
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-# Add all possible node/npm global binary locations to PATH
-ENV PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/lib/node_modules/openclaw/bin:$PATH"
 
 EXPOSE 18789
 
