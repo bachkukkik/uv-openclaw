@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw locally in /opt/openclaw
-RUN mkdir -p /opt/openclaw && \
+RUN echo "Build Date: $(date)" && \
+    mkdir -p /opt/openclaw && \
     cd /opt/openclaw && \
     npm init -y && \
     npm install openclaw --unsafe-perm

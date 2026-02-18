@@ -72,6 +72,7 @@ node -e '
 '
 
 # 5. Start Gateway
+echo "OpenClaw Entrypoint v2.0 (Local Path Mode)"
 export HOME=/home/node
 cd /home/node
 
