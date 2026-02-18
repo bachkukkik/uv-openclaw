@@ -4,7 +4,7 @@ set -e
 # Ensure directory exists
 mkdir -p /home/node/.openclaw
 
-# 4. Configuration Script
+# 4. Configuration Script - Mapping all environment variables to openclaw.json
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -21,7 +21,7 @@ node -e '
     try {
       config = JSON.parse(fs.readFileSync(path, "utf8"));
     } catch (e) {
-      console.warn("Could not parse existing config, starting fresh.");
+      console.warn("Starting with fresh config.");
     }
   }
 
@@ -59,12 +59,10 @@ node -e '
     };
   }
 
-  // Identity/Defaults
+  // Agent Defaults
   config.agent = config.agent || {};
   if (env.OPENAI_MODEL) {
     config.agent.model = env.OPENAI_MODEL;
-  } else if (env.GEMINI_API_KEY) {
-    config.agent.model = "google/gemini-3-pro-preview";
   }
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
@@ -72,18 +70,11 @@ node -e '
 '
 
 # 5. Start Gateway
-echo "OpenClaw Entrypoint v2.0 (Local Path Mode)"
 export HOME=/home/node
 cd /home/node
 
-# Find the entry point of the locally installed package
-ENTRY_JS=$(find /opt/openclaw/node_modules/openclaw -name entry.js | head -n 1)
+# Try to find the binary in common locations
+OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1 || echo "openclaw")
 
-if [ -z "$ENTRY_JS" ]; then
-    echo "Error: Could not find OpenClaw entry.js in /opt/openclaw/node_modules/openclaw"
-    ls -R /opt/openclaw/node_modules/openclaw
-    exit 1
-fi
-
-echo "Starting OpenClaw from: $ENTRY_JS"
-exec node "$ENTRY_JS" gateway --bind lan --port 18789 --allow-unconfigured
+echo "Starting OpenClaw gateway..."
+exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
