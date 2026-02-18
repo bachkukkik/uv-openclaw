@@ -73,32 +73,19 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Robust binary detection
-echo "Searching for openclaw binary..."
-OPENCLAW_BIN=""
-
-if command -v openclaw >/dev/null 2>&1; then
-    OPENCLAW_BIN=$(command -v openclaw)
-else
-    # Try common npm global locations
-    for p in /usr/local/bin/openclaw /usr/bin/openclaw /opt/node/bin/openclaw; do
-        if [ -x "$p" ]; then
-            OPENCLAW_BIN="$p"
-            break
-        fi
-    done
+# If openclaw is not installed, install it now (this mirrors the user's working command)
+if ! command -v openclaw >/dev/null 2>&1; then
+    echo "OpenClaw not found in PATH, installing via official script..."
+    export NO_ONBOARD=1
+    curl -fsSL https://openclaw.ai/install.sh | bash
+    export PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin
 fi
 
-# Final fallback: use npx if installed
-if [ -z "$OPENCLAW_BIN" ]; then
-    if command -v npx >/dev/null 2>&1; then
-        echo "Binary not found in PATH, using npx fallback..."
-        exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
-    else
-        echo "Error: openclaw binary not found and npx is missing."
-        exit 1
-    fi
+# Final check
+if ! command -v openclaw >/dev/null 2>&1; then
+    echo "Error: Failed to install or find openclaw binary."
+    exit 1
 fi
 
-echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
-exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
+echo "Starting OpenClaw gateway..."
+exec openclaw gateway --bind lan --port 18789 --allow-unconfigured

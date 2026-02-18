@@ -16,10 +16,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y gh nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install OpenClaw
-# Setting prefix to /usr/local to ensure binary goes to /usr/local/bin
-RUN npm config set prefix /usr/local && \
-    npm install -g openclaw --unsafe-perm
+# 2. Install OpenClaw via npm global
+RUN npm install -g openclaw --unsafe-perm
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
