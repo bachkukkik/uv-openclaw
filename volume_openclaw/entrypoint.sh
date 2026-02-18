@@ -79,20 +79,32 @@ cd /home/node
 if ! command -v openclaw >/dev/null 2>&1; then
     echo "Error: openclaw binary not found in PATH ($PATH)"
     
-    # Debug: Check node_modules directly
-    echo "Checking node_modules paths..."
-    ls -l /usr/lib/node_modules/openclaw/bin/openclaw 2>/dev/null || true
-    ls -l /usr/local/lib/node_modules/openclaw/bin/openclaw 2>/dev/null || true
-
-    # Try manual search for files only
-    FOUND=$(find /usr/bin /usr/local/bin /usr/lib/node_modules /usr/local/lib/node_modules -name openclaw -type f -executable | head -n 1)
+    # Try common installation paths
+    POSSIBLE_PATHS="
+        /home/node/.openclaw/bin/openclaw
+        /root/.openclaw/bin/openclaw
+        /usr/local/bin/openclaw
+        /usr/bin/openclaw
+    "
     
-    if [ -n "$FOUND" ]; then
-        echo "Found at $FOUND, using it..."
-        OPENCLAW_BIN="$FOUND"
-    else
-        echo "Exiting: Binary not found."
-        exit 1
+    for p in $POSSIBLE_PATHS; do
+        if [ -x "$p" ]; then
+            echo "Found at $p, using it..."
+            OPENCLAW_BIN="$p"
+            break
+        fi
+    done
+
+    if [ -z "$OPENCLAW_BIN" ]; then
+        echo "Performing deep search..."
+        FOUND=$(find / -name openclaw -type f -executable 2>/dev/null | head -n 1)
+        if [ -n "$FOUND" ]; then
+             echo "Found at $FOUND via deep search."
+             OPENCLAW_BIN="$FOUND"
+        else
+             echo "Exiting: Binary not found anywhere."
+             exit 1
+        fi
     fi
 else
     OPENCLAW_BIN=$(command -v openclaw)
