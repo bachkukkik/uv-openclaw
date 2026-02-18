@@ -5,6 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping all environment variables to openclaw.json
+# Updated for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -80,26 +81,11 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-echo "Searching for OpenClaw entry point..."
+# Explicitly add installer paths to ensure binary discovery
+export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Find the global node_modules path
-NPM_ROOT=$(npm root -g)
-PACKAGE_DIR="$NPM_ROOT/openclaw"
+# Binary detection
+OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw/bin /home/node/.openclaw/bin /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1 || echo "openclaw")
 
-# Try different entry points
-for f in "$PACKAGE_DIR/index.js" "$PACKAGE_DIR/dist/entry.js" "$PACKAGE_DIR/bin/openclaw"; do
-    if [ -f "$f" ]; then
-        echo "Starting OpenClaw via node: $f"
-        exec node "$f" gateway --bind lan --port 18789 --allow-unconfigured
-    fi
-done
-
-# Try calling it directly as a last resort
-if command -v openclaw >/dev/null 2>&1; then
-    echo "Starting OpenClaw gateway from binary path..."
-    exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
-fi
-
-echo "Error: Could not find OpenClaw entry point in $PACKAGE_DIR"
-ls -R "$PACKAGE_DIR" 2>/dev/null || echo "Package directory not found."
-exit 1
+echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
+exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
