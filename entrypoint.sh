@@ -5,7 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
-# Using a "Seed and Heal" strategy for v2026.2.17 schema
+# Updated to match the exact v2026.2.17 schema provided by the Master
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -24,50 +24,65 @@ node -e '
     } catch (e) {}
   }
 
-  // Gateway Setup (Stable)
+  // 1. Gateway Configuration
   config.gateway = config.gateway || {};
+  config.gateway.port = 18789;
   config.gateway.controlUi = config.gateway.controlUi || {};
   config.gateway.controlUi.allowInsecureAuth = true;
   config.gateway.trustedProxies = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"];
   config.gateway.auth = { mode: "token", token: token };
 
-  // Seed with legacy structure to trigger OpenClaw\''s built-in auto-migration
-  // This is the most reliable way to handle schema changes between versions
-  config.agent = config.agent || {};
-  if (env.OPENAI_MODEL) {
-    config.agent.model = env.OPENAI_MODEL;
-  } else if (env.GEMINI_API_KEY) {
-    config.agent.model = "google/gemini-3-pro-preview";
-  }
-
-  config.providers = config.providers || {};
-  if (env.OPENAI_API_KEY) {
-    config.providers.openai = {
-      apiKey: env.OPENAI_API_KEY,
-      baseUrl: env.OPENAI_API_BASE || undefined
-    };
-  }
-  if (env.GEMINI_API_KEY) {
-    config.providers.gemini = {
-      apiKey: env.GEMINI_API_KEY
-    };
-  }
-
-  config.tools = config.tools || {};
+  // 2. Browser Configuration (Root level)
   if (env.BROWSERLESS_BASE_URL) {
-    config.tools.browser = {
-      browserless: {
-        url: env.BROWSERLESS_BASE_URL,
-        token: env.BROWSERLESS_TOKEN || undefined
+    const cdpUrl = env.BROWSERLESS_BASE_URL + (env.BROWSERLESS_TOKEN ? "?token=" + env.BROWSERLESS_TOKEN : "");
+    config.browser = {
+      enabled: true,
+      cdpUrl: cdpUrl,
+      color: "#00ffff",
+      profiles: {
+        openclaw: {
+          cdpUrl: cdpUrl,
+          color: "#00ffff"
+        }
       }
     };
   }
 
-  // Remove the new keys we tried earlier to start clean for the doctor
-  delete config.agents;
+  // 3. Models Configuration (Root level)
+  config.models = config.models || {};
+  config.models.providers = config.models.providers || {};
+  
+  if (env.OPENAI_API_KEY) {
+    config.models.providers.openai = {
+      apiKey: env.OPENAI_API_KEY,
+      baseUrl: env.OPENAI_API_BASE || undefined
+    };
+  }
+
+  if (env.GEMINI_API_KEY) {
+    config.models.providers.gemini = {
+      apiKey: env.GEMINI_API_KEY
+    };
+  }
+
+  // 4. Agents Configuration
+  config.agents = config.agents || {};
+  config.agents.defaults = config.agents.defaults || {};
+  config.agents.defaults.model = config.agents.defaults.model || {};
+  
+  if (env.OPENAI_MODEL) {
+    config.agents.defaults.model.primary = env.OPENAI_MODEL;
+  } else if (env.GEMINI_API_KEY) {
+    config.agents.defaults.model.primary = "google/gemini-3-pro-preview";
+  }
+
+  // Cleanup legacy keys
+  delete config.agent;
+  delete config.providers;
+  delete config.tools;
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
-  console.log("OpenClaw seed configuration written.");
+  console.log("OpenClaw configuration generated for Master.");
 '
 
 # 5. Start Gateway
@@ -85,12 +100,8 @@ if [ -z "$OPENCLAW_BIN" ]; then
     exit 1
 fi
 
-# Use OpenClaw\''s own migration engine to fix the config to the current version
-echo "Running openclaw doctor to migrate configuration..."
+echo "Running openclaw doctor to finalize setup..."
 "$OPENCLAW_BIN" doctor --fix || true
-
-echo "Fixed configuration:"
-cat /home/node/.openclaw/openclaw.json
 
 echo "Starting OpenClaw gateway..."
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
