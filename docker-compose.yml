@@ -6,6 +6,8 @@ services:
         UV_IMAGE_TAG: ${UV_IMAGE_TAG:-python3.14-bookworm-slim}
     expose:
       - "18789"
+    # ports:
+    #   - "18789:18789"
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -17,13 +19,8 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       BROWSERLESS_BASE_URL: ${BROWSERLESS_BASE_URL}
       BROWSERLESS_TOKEN: ${BROWSERLESS_TOKEN}
-      CF_NETWORK: ${CF_NETWORK:-portainer-cloudflare-traefik_default}
     volumes:
       - openclaw_config:/home/node/.openclaw
-      - openclaw_workspace:/home/node/.openclaw/workspace
-    networks:
-      dokploy-network:
-      cf-network:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
@@ -34,11 +31,3 @@ services:
 
 volumes:
   openclaw_config:
-  openclaw_workspace:
-
-networks:
-  dokploy-network:
-    external: true
-  cf-network:
-    name: ${CF_NETWORK:-portainer-cloudflare-traefik_default}
-    external: true
