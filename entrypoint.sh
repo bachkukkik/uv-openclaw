@@ -5,7 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
-# Strictly follows v2026.2.17 schema
+# Updated for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -81,12 +81,15 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Use the stable binary path created in Dockerfile
-OPENCLAW_BIN="/usr/local/bin/openclaw-bin"
+# Standard path
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+
+# Use the specific symlink created in Dockerfile
+OPENCLAW_BIN="/usr/local/bin/openclaw-gateway"
 
 if [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Warning: $OPENCLAW_BIN not found, searching..."
-    OPENCLAW_BIN=$(command -v openclaw || find /usr -name openclaw -type f -executable | head -n 1)
+    echo "Warning: $OPENCLAW_BIN not found, trying fallback search..."
+    OPENCLAW_BIN=$(command -v openclaw || find /opt /usr -name openclaw -type f -executable | head -n 1 || echo "")
 fi
 
 if [ -z "$OPENCLAW_BIN" ]; then

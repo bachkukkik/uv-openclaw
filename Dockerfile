@@ -17,10 +17,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw
-# We install it globally and find the exact path during build
-RUN npm install -g openclaw --unsafe-perm
-RUN find /usr -name openclaw -type f -executable && \
-    ln -sf $(find /usr -name openclaw -type f -executable | head -n 1) /usr/local/bin/openclaw-bin
+# We install it to a specific directory to avoid any volume or PATH confusion
+RUN mkdir -p /opt/openclaw-install && \
+    cd /opt/openclaw-install && \
+    npm init -y && \
+    npm install openclaw --unsafe-perm
+
+# Create a system-wide symlink to the package executable
+RUN ln -sf /opt/openclaw-install/node_modules/.bin/openclaw /usr/local/bin/openclaw-gateway
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
