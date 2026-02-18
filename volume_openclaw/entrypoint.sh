@@ -1,12 +1,16 @@
 #!/bin/sh
 set -e
 
+# Ensure directory exists
+mkdir -p /home/node/.openclaw
+
 # 4. Configuration Script
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
-  const token = process.env.OPENCLAW_GATEWAY_TOKEN;
+  const env = process.env;
   
+  const token = env.OPENCLAW_GATEWAY_TOKEN;
   if (!token) {
     console.error("OPENCLAW_GATEWAY_TOKEN is not set.");
     process.exit(1);
@@ -16,17 +20,60 @@ node -e '
   if (fs.existsSync(path)) {
     try {
       config = JSON.parse(fs.readFileSync(path, "utf8"));
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Could not parse existing config, starting fresh.");
+    }
   }
 
+  // Gateway Setup
   config.gateway = config.gateway || {};
   config.gateway.controlUi = config.gateway.controlUi || {};
   config.gateway.controlUi.allowInsecureAuth = true;
   config.gateway.trustedProxies = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"];
   config.gateway.auth = { mode: "token", token: token };
+
+  // Providers Setup
+  config.providers = config.providers || {};
   
+  if (env.OPENAI_API_KEY) {
+    config.providers.openai = {
+      apiKey: env.OPENAI_API_KEY,
+      baseUrl: env.OPENAI_API_BASE || undefined,
+      model: env.OPENAI_MODEL || "openai/gpt-4o"
+    };
+  }
+
+  if (env.GEMINI_API_KEY) {
+    config.providers.gemini = {
+      apiKey: env.GEMINI_API_KEY
+    };
+  }
+
+  // Tools Setup (Browserless)
+  if (env.BROWSERLESS_BASE_URL) {
+    config.tools = config.tools || {};
+    config.tools.browser = config.tools.browser || {};
+    config.tools.browser.browserless = {
+      url: env.BROWSERLESS_BASE_URL,
+      token: env.BROWSERLESS_TOKEN || undefined
+    };
+  }
+
+  // Identity/Defaults (Make it well-equipped)
+  config.agent = config.agent || {};
+  if (env.OPENAI_MODEL) {
+    config.agent.model = env.OPENAI_MODEL;
+  } else if (env.GEMINI_API_KEY) {
+    config.agent.model = "google/gemini-3-pro-preview";
+  }
+
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
+  console.log("OpenClaw configuration updated successfully.");
 '
 
 # 5. Start Gateway
+# Ensure we are running as node if possible, or at least in the right home
+export HOME=/home/node
+cd /home/node
+
 exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
