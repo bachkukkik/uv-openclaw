@@ -28,7 +28,8 @@ RUN mkdir -p /home/node
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin
+# Include standard npm global bin path and OpenClaw legacy paths
+ENV PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/root/.openclaw/bin:/home/node/.openclaw/bin:$PATH"
 
 EXPOSE 18789
 

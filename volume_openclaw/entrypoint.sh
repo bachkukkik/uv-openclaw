@@ -72,8 +72,10 @@ node -e '
 '
 
 # 5. Start Gateway
-# Ensure we are running as node if possible, or at least in the right home
 export HOME=/home/node
 cd /home/node
 
-exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
+# Try to find openclaw if it's not in path
+OPENCLAW_BIN=$(command -v openclaw || echo "/usr/local/bin/openclaw")
+
+exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
