@@ -78,13 +78,20 @@ cd /home/node
 # Verify installation
 if ! command -v openclaw >/dev/null 2>&1; then
     echo "Error: openclaw binary not found in PATH ($PATH)"
-    # Try manual search
-    FOUND=$(find /usr -name openclaw -executable | head -n 1)
+    
+    # Debug: Check node_modules directly
+    echo "Checking node_modules paths..."
+    ls -l /usr/lib/node_modules/openclaw/bin/openclaw 2>/dev/null || true
+    ls -l /usr/local/lib/node_modules/openclaw/bin/openclaw 2>/dev/null || true
+
+    # Try manual search for files only
+    FOUND=$(find /usr/bin /usr/local/bin /usr/lib/node_modules /usr/local/lib/node_modules -name openclaw -type f -executable | head -n 1)
+    
     if [ -n "$FOUND" ]; then
         echo "Found at $FOUND, using it..."
         OPENCLAW_BIN="$FOUND"
     else
-        echo "Exiting."
+        echo "Exiting: Binary not found."
         exit 1
     fi
 else
