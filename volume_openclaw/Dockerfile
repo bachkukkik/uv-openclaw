@@ -17,10 +17,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw
-ENV NO_PROMPT=1
-ENV NO_ONBOARD=1
-RUN curl -fsSL https://openclaw.ai/install.sh | bash
-RUN find / -name openclaw -type f -executable || true
+RUN npm install -g openclaw --unsafe-perm && \
+    ln -sf $(npm root -g)/openclaw/dist/entry.js /usr/local/bin/openclaw && \
+    chmod +x /usr/local/bin/openclaw
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

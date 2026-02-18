@@ -75,39 +75,16 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Verify installation
-if ! command -v openclaw >/dev/null 2>&1; then
-    echo "Error: openclaw binary not found in PATH ($PATH)"
-    
-    # Try common installation paths
-    POSSIBLE_PATHS="
-        /home/node/.openclaw/bin/openclaw
-        /root/.openclaw/bin/openclaw
-        /usr/local/bin/openclaw
-        /usr/bin/openclaw
-    "
-    
-    for p in $POSSIBLE_PATHS; do
-        if [ -x "$p" ]; then
-            echo "Found at $p, using it..."
-            OPENCLAW_BIN="$p"
-            break
-        fi
-    done
+OPENCLAW_BIN="/usr/local/bin/openclaw"
 
-    if [ -z "$OPENCLAW_BIN" ]; then
-        echo "Performing deep search..."
-        FOUND=$(find / -name openclaw -type f -executable 2>/dev/null | head -n 1)
-        if [ -n "$FOUND" ]; then
-             echo "Found at $FOUND via deep search."
-             OPENCLAW_BIN="$FOUND"
-        else
-             echo "Exiting: Binary not found anywhere."
-             exit 1
-        fi
-    fi
-else
-    OPENCLAW_BIN=$(command -v openclaw)
+if [ ! -x "$OPENCLAW_BIN" ]; then
+    echo "Warning: $OPENCLAW_BIN not executable, searching PATH..."
+    OPENCLAW_BIN=$(command -v openclaw || which openclaw || find /usr -name openclaw -type f -executable | head -n 1)
+fi
+
+if [ -z "$OPENCLAW_BIN" ] || [ ! -x "$OPENCLAW_BIN" ]; then
+    echo "Error: OpenClaw binary not found or not executable."
+    exit 1
 fi
 
 echo "Starting OpenClaw from: $OPENCLAW_BIN"
