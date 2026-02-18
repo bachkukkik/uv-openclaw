@@ -75,23 +75,13 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Use the linked binary
-OPENCLAW_BIN="/usr/local/bin/openclaw"
+# Dynamic search for openclaw
+OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin /root/.openclaw/bin -name openclaw -type f -executable | head -n 1)
 
-if [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Warning: $OPENCLAW_BIN not found or not executable, checking fallbacks..."
-    # Deep search for the file
-    OPENCLAW_BIN=$(find /opt/openclaw -name openclaw -type f -executable | head -n 1)
-    if [ -z "$OPENCLAW_BIN" ]; then
-        # Try finding the package bin folder specifically
-        OPENCLAW_BIN=$(find /opt/openclaw -path "*/openclaw/bin/openclaw" -type f -executable | head -n 1)
-    fi
-fi
-
-if [ -z "$OPENCLAW_BIN" ] || [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Error: OpenClaw binary not found. Listing /opt/openclaw structure:"
-    find /opt/openclaw -maxdepth 4 || true
-    exit 1
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Warning: openclaw binary not found in PATH or common locations."
+    echo "Attempting to start via npx..."
+    exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
 fi
 
 echo "Starting OpenClaw from: $OPENCLAW_BIN"
