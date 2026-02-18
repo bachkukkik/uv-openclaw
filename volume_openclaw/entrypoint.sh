@@ -80,11 +80,17 @@ OPENCLAW_BIN="/usr/local/bin/openclaw"
 
 if [ ! -x "$OPENCLAW_BIN" ]; then
     echo "Warning: $OPENCLAW_BIN not found or not executable, checking fallbacks..."
-    OPENCLAW_BIN=$(command -v openclaw || which openclaw || find /opt/openclaw -name openclaw -type f -executable | head -n 1)
+    # Deep search for the file
+    OPENCLAW_BIN=$(find /opt/openclaw -name openclaw -type f -executable | head -n 1)
+    if [ -z "$OPENCLAW_BIN" ]; then
+        # Try finding the package bin folder specifically
+        OPENCLAW_BIN=$(find /opt/openclaw -path "*/openclaw/bin/openclaw" -type f -executable | head -n 1)
+    fi
 fi
 
 if [ -z "$OPENCLAW_BIN" ] || [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Error: OpenClaw binary not found."
+    echo "Error: OpenClaw binary not found. Listing /opt/openclaw structure:"
+    find /opt/openclaw -maxdepth 4 || true
     exit 1
 fi
 

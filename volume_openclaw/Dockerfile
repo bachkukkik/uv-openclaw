@@ -21,7 +21,8 @@ RUN mkdir -p /opt/openclaw && \
     cd /opt/openclaw && \
     npm init -y && \
     npm install openclaw && \
-    ln -sf /opt/openclaw/node_modules/.bin/openclaw /usr/local/bin/openclaw
+    ln -sf /opt/openclaw/node_modules/openclaw/bin/openclaw /usr/local/bin/openclaw && \
+    chmod +x /opt/openclaw/node_modules/openclaw/bin/openclaw /usr/local/bin/openclaw
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
