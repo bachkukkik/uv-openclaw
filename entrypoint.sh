@@ -20,14 +20,9 @@ node -e '
     process.exit(1);
   }
 
-  // Get raw values
-  let defaultModel = env.OPENAI_DEFAULT_MODEL || "gpt-4o";
+  // Use raw model string from environment to allow full sub-paths (e.g. llama_cpp/...)
+  const defaultModel = env.OPENAI_DEFAULT_MODEL || "gpt-4o";
   const defaultProvider = env.DEFAULT_MODEL_PROVIDER || "openai";
-
-  // If model already contains provider, strip it for the model ID
-  if (defaultModel.includes("/")) {
-    defaultModel = defaultModel.split("/").pop();
-  }
 
   let config = {
     commands: { native: "auto", nativeSkills: "auto" },
@@ -58,7 +53,6 @@ node -e '
   config.models = { providers: {} };
   
   if (env.OPENAI_API_KEY) {
-    // Crucial: Set the "api" type. Use "openai" for litellm as it is OpenAI-compatible.
     const apiType = defaultProvider === "litellm" ? "openai" : defaultProvider;
     
     config.models.providers[defaultProvider] = {
@@ -98,7 +92,7 @@ node -e '
   };
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
-  console.log("OpenClaw configuration updated successfully (v2.1).");
+  console.log("OpenClaw configuration updated successfully (v2.2).");
 '
 
 # 5. Start Gateway
