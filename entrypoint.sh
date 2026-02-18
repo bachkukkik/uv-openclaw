@@ -82,18 +82,27 @@ export HOME=/home/node
 cd /home/node
 
 # Standard path
-export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Use the specific symlink created in Dockerfile
-OPENCLAW_BIN="/usr/local/bin/openclaw-gateway"
+# Priority check: The static binary we copied in the Dockerfile
+OPENCLAW_BIN="/usr/bin/openclaw-core"
 
 if [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Warning: $OPENCLAW_BIN not found, trying fallback search..."
-    OPENCLAW_BIN=$(command -v openclaw || find /opt /usr -name openclaw -type f -executable | head -n 1 || echo "")
+    echo "Warning: Build-time binary $OPENCLAW_BIN not found. Checking PATH..."
+    OPENCLAW_BIN=$(command -v openclaw || which openclaw || echo "")
+fi
+
+# Emergency Fallback: If still not found, install it at runtime (mirrors user's working setup)
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Emergency: OpenClaw not found. Running runtime installation fallback..."
+    export OPENCLAW_NO_ONBOARD=1
+    export OPENCLAW_NO_PROMPT=1
+    curl -fsSL https://openclaw.ai/install.sh | bash
+    OPENCLAW_BIN=$(find /root/.openclaw/bin -name openclaw | head -n 1)
 fi
 
 if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Error: openclaw binary not found."
+    echo "Error: Failed to locate or install OpenClaw."
     exit 1
 fi
 
