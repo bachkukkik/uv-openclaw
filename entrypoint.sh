@@ -20,7 +20,6 @@ node -e '
     process.exit(1);
   }
 
-  // Use raw model string from environment to allow full sub-paths (e.g. llama_cpp/...)
   const defaultModel = env.OPENAI_DEFAULT_MODEL || "gpt-4o";
   const defaultProvider = env.DEFAULT_MODEL_PROVIDER || "openai";
 
@@ -53,7 +52,8 @@ node -e '
   config.models = { providers: {} };
   
   if (env.OPENAI_API_KEY) {
-    const apiType = defaultProvider === "litellm" ? "openai" : defaultProvider;
+    // Correct API type for LiteLLM/OpenAI-compatible providers
+    const apiType = defaultProvider === "litellm" ? "openai-completions" : "openai";
     
     config.models.providers[defaultProvider] = {
       api: apiType,
@@ -75,7 +75,7 @@ node -e '
 
   if (env.GEMINI_API_KEY) {
     config.models.providers.gemini = {
-      api: "google",
+      api: "google-generative-ai",
       apiKey: env.GEMINI_API_KEY,
       baseUrl: "https://generativelanguage.googleapis.com",
       models: []
@@ -92,7 +92,7 @@ node -e '
   };
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
-  console.log("OpenClaw configuration updated successfully (v2.2).");
+  console.log("OpenClaw configuration updated successfully (v2.3).");
 '
 
 # 5. Start Gateway
