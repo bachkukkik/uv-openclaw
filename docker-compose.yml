@@ -1,7 +1,7 @@
 services:
   openclaw-gateway:
     build:
-      context: .
+      context: ./volume_openclaw
       args:
         UV_IMAGE_TAG: ${UV_IMAGE_TAG:-python3.14-bookworm-slim}
     expose:
