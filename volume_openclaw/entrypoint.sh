@@ -75,7 +75,12 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Try to find openclaw if it's not in path
-OPENCLAW_BIN=$(command -v openclaw || echo "/usr/local/bin/openclaw")
+# Debug: list global bin contents
+echo "Listing /usr/bin and /usr/local/bin to find openclaw:"
+ls -F /usr/bin/openclaw /usr/local/bin/openclaw /usr/local/lib/node_modules/openclaw/bin/openclaw 2>/dev/null || true
 
+# Robust search for the binary
+OPENCLAW_BIN=$(which openclaw || find /usr -name openclaw -type f -executable | head -n 1 || echo "openclaw")
+
+echo "Starting OpenClaw from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
