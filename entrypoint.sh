@@ -4,7 +4,8 @@ set -e
 # Ensure directory exists
 mkdir -p /home/node/.openclaw
 
-# 4. Configuration Script - Mapping all environment variables to openclaw.json
+# 4. Configuration Script - Mapping environment variables to openclaw.json
+# Updated to strictly follow v2026.2.17 requirements
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -32,20 +33,47 @@ node -e '
   config.gateway.trustedProxies = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"];
   config.gateway.auth = { mode: "token", token: token };
 
-  // Agents and Providers (v2026 schema)
+  // Agents Setup (New v2026 Schema)
+  // Problem was: agent.model string was replaced by agents.defaults.model.primary
   config.agents = config.agents || {};
   config.agents.defaults = config.agents.defaults || {};
   config.agents.defaults.model = config.agents.defaults.model || {};
-
-  // Map LLM settings
+  
   if (env.OPENAI_API_KEY) {
     config.agents.defaults.model.primary = env.OPENAI_MODEL || "openai/gpt-4o";
   } else if (env.GEMINI_API_KEY) {
     config.agents.defaults.model.primary = "google/gemini-3-pro-preview";
   }
 
-  // Clean legacy
+  // Providers Setup (If needed, check if they go under agents.providers or root)
+  // Error said: <root>: Unrecognized key: "providers"
+  config.agents.providers = config.agents.providers || {};
+  if (env.OPENAI_API_KEY) {
+    config.agents.providers.openai = {
+      apiKey: env.OPENAI_API_KEY,
+      baseUrl: env.OPENAI_API_BASE || undefined
+    };
+  }
+  if (env.GEMINI_API_KEY) {
+    config.agents.providers.gemini = {
+      apiKey: env.GEMINI_API_KEY
+    };
+  }
+
+  // Tools Setup (Browserless)
+  // Error said: tools: Unrecognized key: "browser"
+  config.agents.tools = config.agents.tools || {};
+  if (env.BROWSERLESS_BASE_URL) {
+    config.agents.tools.browserless = {
+      url: env.BROWSERLESS_BASE_URL,
+      token: env.BROWSERLESS_TOKEN || undefined
+    };
+  }
+
+  // MANDATORY: Remove all legacy keys to avoid "invalid config" errors
   delete config.agent;
+  delete config.providers;
+  delete config.tools;
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
   console.log("OpenClaw configuration updated successfully.");
@@ -55,22 +83,17 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Set explicit path
-export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+# We created a symlink at /usr/bin/openclaw in the Dockerfile
+OPENCLAW_BIN="/usr/bin/openclaw"
 
-# Robust binary detection
-echo "Finding OpenClaw executable..."
-OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1 || echo "")
+if [ ! -x "$OPENCLAW_BIN" ]; then
+    echo "Warning: $OPENCLAW_BIN not found, trying which openclaw..."
+    OPENCLAW_BIN=$(which openclaw || echo "")
+fi
 
 if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Warning: openclaw binary not found in PATH. Checking npx..."
-    if command -v npx >/dev/null 2>&1; then
-        echo "Starting OpenClaw gateway via npx..."
-        exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
-    else
-        echo "Error: openclaw binary and npx are both missing."
-        exit 1
-    fi
+    echo "Error: openclaw binary not found in system."
+    exit 1
 fi
 
 echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"

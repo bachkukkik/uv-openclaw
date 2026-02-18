@@ -17,9 +17,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw
-# Setting prefix to /usr/local to ensure binary goes to /usr/local/bin
-RUN npm config set prefix /usr/local && \
-    npm install -g openclaw --unsafe-perm
+# We use npm install -g and verify the binary location
+RUN npm install -g openclaw --unsafe-perm && \
+    ls -l $(npm config get prefix)/bin/openclaw && \
+    ln -sf $(npm config get prefix)/bin/openclaw /usr/bin/openclaw
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
@@ -30,7 +31,8 @@ RUN mkdir -p /home/node/.openclaw
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-ENV PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+# Ensure /usr/bin is in PATH (where we linked the binary)
+ENV PATH="/usr/bin:/usr/local/bin:/bin:$PATH"
 
 EXPOSE 18789
 
