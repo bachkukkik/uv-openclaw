@@ -17,8 +17,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw
+RUN mkdir -p /usr/local/lib/npm-global
+ENV NPM_CONFIG_PREFIX=/usr/local/lib/npm-global
+ENV PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
 RUN npm install -g openclaw --unsafe-perm
-RUN find /usr -name openclaw -type f
+RUN ls -l /usr/local/lib/npm-global/bin/openclaw
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
