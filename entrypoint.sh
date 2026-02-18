@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Increase file descriptor limit to mitigate EMFILE errors if possible
+ulimit -n 65535 2>/dev/null || true
+
 # Ensure directory structure exists
 mkdir -p /home/node/.openclaw/agents/main/sessions
 mkdir -p /home/node/.openclaw/credentials
@@ -21,7 +24,7 @@ node -e '
   let defaultModel = env.OPENAI_DEFAULT_MODEL || "gpt-4o";
   const defaultProvider = env.DEFAULT_MODEL_PROVIDER || "openai";
 
-  // If model already contains provider (e.g. "openai/gpt-4o"), strip it for the model ID
+  // If model already contains provider, strip it for the model ID
   if (defaultModel.includes("/")) {
     defaultModel = defaultModel.split("/").pop();
   }
@@ -55,7 +58,11 @@ node -e '
   config.models = { providers: {} };
   
   if (env.OPENAI_API_KEY) {
+    // Crucial: Set the "api" type. Use "openai" for litellm as it is OpenAI-compatible.
+    const apiType = defaultProvider === "litellm" ? "openai" : defaultProvider;
+    
     config.models.providers[defaultProvider] = {
+      api: apiType,
       apiKey: env.OPENAI_API_KEY,
       baseUrl: env.OPENAI_API_BASE || "https://api.openai.com/v1",
       models: [
@@ -74,6 +81,7 @@ node -e '
 
   if (env.GEMINI_API_KEY) {
     config.models.providers.gemini = {
+      api: "google",
       apiKey: env.GEMINI_API_KEY,
       baseUrl: "https://generativelanguage.googleapis.com",
       models: []
@@ -90,7 +98,7 @@ node -e '
   };
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
-  console.log("OpenClaw configuration updated successfully.");
+  console.log("OpenClaw configuration updated successfully (v2.1).");
 '
 
 # 5. Start Gateway
