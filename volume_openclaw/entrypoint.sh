@@ -75,15 +75,26 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-OPENCLAW_BIN="/usr/local/bin/openclaw"
+# Set explicit path to ensure we look in /usr/local/bin first
+export PATH="/usr/local/bin:$PATH"
 
-if [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Warning: $OPENCLAW_BIN not executable, searching PATH..."
-    OPENCLAW_BIN=$(command -v openclaw || which openclaw || find /usr -name openclaw -type f -executable | head -n 1)
+# Debug: check what we have
+echo "Checking for openclaw binary..."
+if command -v openclaw >/dev/null 2>&1; then
+    OPENCLAW_BIN=$(command -v openclaw)
+    echo "Found via command -v: $OPENCLAW_BIN"
+elif [ -x "/usr/local/bin/openclaw" ]; then
+    OPENCLAW_BIN="/usr/local/bin/openclaw"
+    echo "Found at hardcoded path: $OPENCLAW_BIN"
+else
+    echo "Searching system-wide for openclaw..."
+    OPENCLAW_BIN=$(find /usr -name openclaw -type f -executable | head -n 1)
 fi
 
-if [ -z "$OPENCLAW_BIN" ] || [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Error: OpenClaw binary not found or not executable."
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Error: OpenClaw binary not found."
+    echo "Global npm list:"
+    npm list -g --depth=0 || true
     exit 1
 fi
 
