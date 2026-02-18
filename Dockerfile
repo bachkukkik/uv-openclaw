@@ -16,8 +16,10 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y gh nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install OpenClaw via npm global
-RUN npm install -g openclaw --unsafe-perm
+# 2. Install OpenClaw during build
+# Using npm install -g and creating a reliable symlink
+RUN npm install -g openclaw --unsafe-perm && \
+    ln -sf $(npm root -g)/openclaw/bin/openclaw /usr/local/bin/openclaw
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
@@ -28,6 +30,7 @@ RUN mkdir -p /home/node/.openclaw
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
+ENV PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
 EXPOSE 18789
 

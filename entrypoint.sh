@@ -4,7 +4,8 @@ set -e
 # Ensure directory exists
 mkdir -p /home/node/.openclaw
 
-# 4. Configuration Script
+# 4. Configuration Script - Mapping all environment variables to openclaw.json
+# Updated for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -38,8 +39,7 @@ node -e '
   if (env.OPENAI_API_KEY) {
     config.providers.openai = {
       apiKey: env.OPENAI_API_KEY,
-      baseUrl: env.OPENAI_API_BASE || undefined,
-      model: env.OPENAI_MODEL || "openai/gpt-4o"
+      baseUrl: env.OPENAI_API_BASE || undefined
     };
   }
 
@@ -59,11 +59,19 @@ node -e '
     };
   }
 
-  // Agent Defaults
-  config.agent = config.agent || {};
+  // Agents Setup (New v2026 Schema)
+  config.agents = config.agents || {};
+  config.agents.defaults = config.agents.defaults || {};
+  config.agents.defaults.model = config.agents.defaults.model || {};
+  
   if (env.OPENAI_MODEL) {
-    config.agent.model = env.OPENAI_MODEL;
+    config.agents.defaults.model.primary = env.OPENAI_MODEL;
+  } else if (env.GEMINI_API_KEY) {
+    config.agents.defaults.model.primary = "google/gemini-3-pro-preview";
   }
+
+  // Clean up legacy keys
+  delete config.agent;
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
   console.log("OpenClaw configuration updated successfully.");
@@ -73,19 +81,8 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# If openclaw is not installed, install it now (this mirrors the user's working command)
-if ! command -v openclaw >/dev/null 2>&1; then
-    echo "OpenClaw not found in PATH, installing via official script..."
-    export NO_ONBOARD=1
-    curl -fsSL https://openclaw.ai/install.sh | bash
-    export PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin
-fi
-
-# Final check
-if ! command -v openclaw >/dev/null 2>&1; then
-    echo "Error: Failed to install or find openclaw binary."
-    exit 1
-fi
+# Set explicit path
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
 echo "Starting OpenClaw gateway..."
 exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
