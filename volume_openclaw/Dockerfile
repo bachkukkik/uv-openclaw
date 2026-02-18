@@ -24,7 +24,9 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # 4. Set environment
+RUN mkdir -p /home/node
 ENV HOME=/home/node
+WORKDIR /home/node
 ENV TERM=xterm-256color
 ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin
 
