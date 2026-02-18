@@ -5,7 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
-# Compliant with v2026.2.17 schema
+# Updated for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -68,7 +68,7 @@ node -e '
     };
   }
 
-  // Clean legacy keys to ensure validation passes
+  // Clean legacy keys
   delete config.agent;
   delete config.providers;
   delete config.tools;
@@ -82,13 +82,24 @@ export HOME=/home/node
 cd /home/node
 
 # Standard path
-export PATH="/usr/bin:/usr/local/bin:/bin:$PATH"
+export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Binary check
-if ! command -v openclaw >/dev/null 2>&1; then
-    echo "Error: openclaw binary not found in PATH."
+# Binary detection
+echo "Searching for OpenClaw binary..."
+OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw/bin /home/node/.openclaw/bin /usr/local/bin -name openclaw -type f -executable | head -n 1)
+
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Emergency: OpenClaw not found. Attempting runtime install..."
+    export NO_ONBOARD=1
+    export OPENCLAW_NO_PROMPT=1
+    curl -fsSL https://openclaw.ai/install.sh | bash || true
+    OPENCLAW_BIN=$(find /root/.openclaw/bin /home/node/.openclaw/bin -name openclaw -type f -executable | head -n 1)
+fi
+
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Error: Failed to find or install OpenClaw."
     exit 1
 fi
 
-echo "Starting OpenClaw gateway..."
-exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
+echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
+exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
