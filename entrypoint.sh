@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
 
-# Ensure directory exists
-mkdir -p /home/node/.openclaw
+# Ensure directory structure exists
+mkdir -p /home/node/.openclaw/agents/main/sessions
+mkdir -p /home/node/.openclaw/credentials
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
 # Strictly following v2026.2.17 schema requirements
