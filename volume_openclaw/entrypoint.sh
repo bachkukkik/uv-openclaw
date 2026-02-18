@@ -75,12 +75,22 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Debug: list global bin contents
-echo "Listing /usr/bin and /usr/local/bin to find openclaw:"
-ls -F /usr/bin/openclaw /usr/local/bin/openclaw /usr/local/lib/node_modules/openclaw/bin/openclaw 2>/dev/null || true
+# Debug information
+echo "Current User: $(whoami)"
+echo "PATH: $PATH"
+echo "NPM Global Bin: $(npm config get prefix)/bin"
+ls -l "$(npm config get prefix)/bin/openclaw" 2>/dev/null || echo "OpenClaw not found in npm global bin"
 
-# Robust search for the binary
-OPENCLAW_BIN=$(which openclaw || find /usr -name openclaw -type f -executable | head -n 1 || echo "openclaw")
+# Try to find the binary with multiple fallbacks
+if command -v openclaw >/dev/null 2>&1; then
+    OPENCLAW_BIN=$(command -v openclaw)
+elif [ -f "$(npm config get prefix)/bin/openclaw" ]; then
+    OPENCLAW_BIN="$(npm config get prefix)/bin/openclaw"
+else
+    # Last resort: try npx (it might be slow but it works)
+    echo "Using npx as fallback..."
+    exec npx openclaw gateway --bind lan --port 18789 --allow-unconfigured
+fi
 
 echo "Starting OpenClaw from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
