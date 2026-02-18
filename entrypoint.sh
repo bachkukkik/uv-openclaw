@@ -5,7 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
-# Updated to strictly follow v2026.2.17 requirements
+# Strictly follows v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -33,20 +33,19 @@ node -e '
   config.gateway.trustedProxies = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"];
   config.gateway.auth = { mode: "token", token: token };
 
-  // Agents Setup (New v2026 Schema)
-  // Problem was: agent.model string was replaced by agents.defaults.model.primary
+  // Agents and Defaults (v2026 schema)
   config.agents = config.agents || {};
   config.agents.defaults = config.agents.defaults || {};
   config.agents.defaults.model = config.agents.defaults.model || {};
-  
+
+  // Map LLM settings
   if (env.OPENAI_API_KEY) {
     config.agents.defaults.model.primary = env.OPENAI_MODEL || "openai/gpt-4o";
   } else if (env.GEMINI_API_KEY) {
     config.agents.defaults.model.primary = "google/gemini-3-pro-preview";
   }
 
-  // Providers Setup (If needed, check if they go under agents.providers or root)
-  // Error said: <root>: Unrecognized key: "providers"
+  // Providers Setup
   config.agents.providers = config.agents.providers || {};
   if (env.OPENAI_API_KEY) {
     config.agents.providers.openai = {
@@ -61,7 +60,6 @@ node -e '
   }
 
   // Tools Setup (Browserless)
-  // Error said: tools: Unrecognized key: "browser"
   config.agents.tools = config.agents.tools || {};
   if (env.BROWSERLESS_BASE_URL) {
     config.agents.tools.browserless = {
@@ -70,7 +68,7 @@ node -e '
     };
   }
 
-  // MANDATORY: Remove all legacy keys to avoid "invalid config" errors
+  // Clean legacy keys
   delete config.agent;
   delete config.providers;
   delete config.tools;
@@ -83,16 +81,16 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# We created a symlink at /usr/bin/openclaw in the Dockerfile
-OPENCLAW_BIN="/usr/bin/openclaw"
+# Use the stable binary path created in Dockerfile
+OPENCLAW_BIN="/usr/local/bin/openclaw-bin"
 
 if [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Warning: $OPENCLAW_BIN not found, trying which openclaw..."
-    OPENCLAW_BIN=$(which openclaw || echo "")
+    echo "Warning: $OPENCLAW_BIN not found, searching..."
+    OPENCLAW_BIN=$(command -v openclaw || find /usr -name openclaw -type f -executable | head -n 1)
 fi
 
 if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Error: openclaw binary not found in system."
+    echo "Error: openclaw binary not found."
     exit 1
 fi
 
