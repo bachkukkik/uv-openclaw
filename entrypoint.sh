@@ -5,7 +5,6 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping all environment variables to openclaw.json
-# Updated for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -84,5 +83,14 @@ cd /home/node
 # Set explicit path
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
-echo "Starting OpenClaw gateway..."
-exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
+# Find openclaw binary
+OPENCLAW_BIN=$(which openclaw || find /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1)
+
+if [ -z "$OPENCLAW_BIN" ]; then
+    echo "Error: openclaw binary not found in PATH or system."
+    ls -l /usr/local/bin/openclaw /usr/bin/openclaw 2>/dev/null || true
+    exit 1
+fi
+
+echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
+exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured

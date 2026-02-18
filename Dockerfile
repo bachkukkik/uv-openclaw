@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Install OpenClaw during build
-RUN npm install -g openclaw --unsafe-perm
+# Force global prefix to /usr/local
+RUN npm config set prefix /usr/local && \
+    npm install -g openclaw --unsafe-perm
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
@@ -28,7 +30,6 @@ RUN mkdir -p /home/node/.openclaw
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-# Add common npm global paths
 ENV PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
 EXPOSE 18789
