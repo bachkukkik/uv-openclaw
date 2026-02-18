@@ -16,16 +16,13 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y gh nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install OpenClaw at build time
-# We use the official installer with flags to skip interactive bits
-ENV OPENCLAW_NO_ONBOARD=1
-ENV OPENCLAW_NO_PROMPT=1
-ENV OPENCLAW_INSTALL_SH_NO_RUN=1
-RUN curl -fsSL https://openclaw.ai/install.sh | bash
+# 2. Install OpenClaw globally at build time
+# Force prefix to /usr to ensure it lands in /usr/bin
+RUN npm config set prefix /usr && \
+    npm install -g openclaw --unsafe-perm
 
-# Create a redundant copy in a standard location to ensure it survives volume mounts
-RUN cp $(find /root/.openclaw/bin -name openclaw) /usr/bin/openclaw-core && \
-    chmod +x /usr/bin/openclaw-core
+# Verify installation during build
+RUN which openclaw && openclaw --version
 
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
@@ -36,7 +33,7 @@ RUN mkdir -p /home/node/.openclaw
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-ENV PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+ENV PATH="/usr/bin:/usr/local/bin:/bin:$PATH"
 
 EXPOSE 18789
 

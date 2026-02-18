@@ -5,7 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping environment variables to openclaw.json
-# Updated for v2026.2.17 schema
+# Compliant with v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
@@ -68,7 +68,7 @@ node -e '
     };
   }
 
-  // Clean legacy keys
+  // Clean legacy keys to ensure validation passes
   delete config.agent;
   delete config.providers;
   delete config.tools;
@@ -82,29 +82,13 @@ export HOME=/home/node
 cd /home/node
 
 # Standard path
-export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+export PATH="/usr/bin:/usr/local/bin:/bin:$PATH"
 
-# Priority check: The static binary we copied in the Dockerfile
-OPENCLAW_BIN="/usr/bin/openclaw-core"
-
-if [ ! -x "$OPENCLAW_BIN" ]; then
-    echo "Warning: Build-time binary $OPENCLAW_BIN not found. Checking PATH..."
-    OPENCLAW_BIN=$(command -v openclaw || which openclaw || echo "")
-fi
-
-# Emergency Fallback: If still not found, install it at runtime (mirrors user's working setup)
-if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Emergency: OpenClaw not found. Running runtime installation fallback..."
-    export OPENCLAW_NO_ONBOARD=1
-    export OPENCLAW_NO_PROMPT=1
-    curl -fsSL https://openclaw.ai/install.sh | bash
-    OPENCLAW_BIN=$(find /root/.openclaw/bin -name openclaw | head -n 1)
-fi
-
-if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Error: Failed to locate or install OpenClaw."
+# Binary check
+if ! command -v openclaw >/dev/null 2>&1; then
+    echo "Error: openclaw binary not found in PATH."
     exit 1
 fi
 
-echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
-exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
+echo "Starting OpenClaw gateway..."
+exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
