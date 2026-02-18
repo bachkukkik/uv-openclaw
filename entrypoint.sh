@@ -5,6 +5,7 @@ set -e
 mkdir -p /home/node/.openclaw
 
 # 4. Configuration Script - Mapping all environment variables to openclaw.json
+# Updated for v2026.2.17 schema
 node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";

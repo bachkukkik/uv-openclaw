@@ -16,9 +16,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y gh nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install OpenClaw during build using official script (non-interactive)
-ENV NO_ONBOARD=1
-ENV NO_PROMPT=1
+# 2. Install OpenClaw during build
+# Using OPENCLAW_INSTALL_SH_NO_RUN=1 to prevent the installer from trying to run "onboard" in a non-TTY environment
+ENV OPENCLAW_NO_ONBOARD=1
+ENV OPENCLAW_NO_PROMPT=1
+ENV OPENCLAW_INSTALL_SH_NO_RUN=1
 RUN curl -fsSL https://openclaw.ai/install.sh | bash
 
 # 3. Add configuration script
@@ -30,7 +32,7 @@ RUN mkdir -p /home/node/.openclaw
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-# Add OpenClaw's preferred binary paths
+# Add OpenClaw binary paths to PATH
 ENV PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
 EXPOSE 18789
