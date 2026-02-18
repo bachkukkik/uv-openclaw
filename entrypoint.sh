@@ -81,16 +81,11 @@ node -e '
 export HOME=/home/node
 cd /home/node
 
-# Explicitly add installer paths to ensure binary discovery
-export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+# Set explicit path to find global npm binaries
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
 # Binary detection
-OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw/bin /home/node/.openclaw/bin /usr/local/bin /usr/bin -name openclaw -type f -executable | head -n 1)
-
-if [ -z "$OPENCLAW_BIN" ]; then
-    echo "Error: openclaw binary not found in PATH or installer directories."
-    exit 1
-fi
+OPENCLAW_BIN=$(which openclaw || find /usr -name openclaw -type f -executable | head -n 1 || echo "openclaw")
 
 echo "Starting OpenClaw gateway from: $OPENCLAW_BIN"
 exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
