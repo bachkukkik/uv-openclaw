@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y \
 
 # 2. Install OpenClaw
 RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard --no-prompt
-
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
@@ -28,8 +27,7 @@ RUN mkdir -p /home/node
 ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
-# Include standard npm global bin path and OpenClaw legacy paths
-ENV PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/root/.openclaw/bin:/home/node/.openclaw/bin:$PATH"
+ENV PATH="/usr/local/bin:/usr/bin:/bin:/root/.openclaw/bin:/home/node/.openclaw/bin:$PATH"
 
 EXPOSE 18789
 
