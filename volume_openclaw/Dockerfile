@@ -32,7 +32,7 @@ ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
 # Add all possible OpenClaw paths to PATH
-ENV PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin
 
 EXPOSE 18789
 
