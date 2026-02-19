@@ -96,10 +96,5 @@ node -e '
 '
 
 # 5. Start Gateway
-
-# export PATH="/root/.openclaw/bin:/home/node/.openclaw/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
-# OPENCLAW_BIN=$(command -v openclaw || find /root/.openclaw/bin /home/node/.openclaw/bin /usr/local/bin -name openclaw -type f -executable | head -n 1)
-
 echo "Starting OpenClaw gateway..."
-# exec "$OPENCLAW_BIN" gateway --bind lan --port 18789 --allow-unconfigured
 exec openclaw gateway --bind lan --port 18789 --allow-unconfigured
