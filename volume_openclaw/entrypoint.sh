@@ -8,6 +8,12 @@ ulimit -n 65535 2>/dev/null || true
 mkdir -p /home/node/.openclaw/agents/main/sessions
 mkdir -p /home/node/.openclaw/credentials
 
+# Install opencode
+if [ ! -f "/home/node/.opencode/bin/opencode" ]; then
+  curl -fsSL https://opencode.ai/install | bash
+fi
+export PATH=/home/node/.opencode/bin:$PATH
+
 # 4. Configuration Script - Mapping environment variables to openclaw.json
 node -e '
   const fs = require("fs");
