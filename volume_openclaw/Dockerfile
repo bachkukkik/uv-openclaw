@@ -22,6 +22,9 @@ RUN export NO_ONBOARD=1 && \
     export OPENCLAW_NO_PROMPT=1 && \
     (curl -fsSL https://openclaw.ai/install.sh | bash || true)
 
+# 2.5 Install opencode
+RUN curl -fsSL https://opencode.ai/install | bash
+
 # 3. Add configuration script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
@@ -32,7 +35,7 @@ ENV HOME=/home/node
 WORKDIR /home/node
 ENV TERM=xterm-256color
 # Add all possible OpenClaw paths to PATH
-ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin
+ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/home/node/.opencode/bin
 
 EXPOSE 18789
 
