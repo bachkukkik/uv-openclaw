@@ -13,6 +13,11 @@ node -e '
   const fs = require("fs");
   const path = "/home/node/.openclaw/openclaw.json";
   const env = process.env;
+
+  if (fs.existsSync(path) && env.OPENCLAW_OVERRIDE_CONFIG !== "true") {
+    console.log("OpenClaw configuration already exists. Skipping initialization.");
+    process.exit(0);
+  }
   
   const token = env.OPENCLAW_GATEWAY_TOKEN;
   if (!token) {
