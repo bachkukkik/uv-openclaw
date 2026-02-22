@@ -22,6 +22,7 @@ services:
       BROWSERLESS_TOKEN: ${BROWSERLESS_TOKEN}
     volumes:
       - openclaw_config:/home/node/.openclaw
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
