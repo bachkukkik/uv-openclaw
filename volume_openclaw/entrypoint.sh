@@ -14,7 +14,7 @@ node -e '
   const path = "/home/node/.openclaw/openclaw.json";
   const env = process.env;
 
-  const pairingRequired = env.OPENCLAW_REQUIRE_CONTROL_UI_PAIRING === "true";
+  const pairingRequired = env.OPENCLAW_REQUIRE_CONTROL_UI_PAIRING !== "false";
   const isBypassEnabled = !pairingRequired;
   const shouldOverride = env.OPENCLAW_OVERRIDE_CONFIG === "true" || isBypassEnabled;
 
