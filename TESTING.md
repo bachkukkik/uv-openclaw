@@ -23,8 +23,10 @@ I performed a full system check by building the container and executing verifica
 | **Docker Compose** | **PASS** | `docker compose version` (v5.0.2) |
 | **Node.js** | **PASS** | `node --version` (v22.22.0) |
 | **OpenClaw** | **PASS** | `openclaw --version` (2026.2.21-2) |
+| **Opencode** | **PASS** | `opencode --version` (v1.0.5) |
 | **Git Rules** | **PASS** | `git check-ignore` (llms_txt/* blocked, .gitkeep allowed) |
 | **Configuration** | **PASS** | `entrypoint.sh` correctly generated `openclaw.json` with token. |
+| **Opencode Fallback** | **PASS** | `.env` created for Opencode with primary model and keys. |
 
 ## Deployment Verification Test Case
 
@@ -47,16 +49,43 @@ docker ps
 ### 2. Verification of OpenClaw Gateway
 Check the logs to ensure the gateway started with the preconfigured token:
 ```bash
-# Check configuration file
+# Verify OpenClaw Gateway
 cat /home/node/.openclaw/openclaw.json
+
+# Verify Opencode CLI
+opencode --help
 ```
-*Expected Result: JSON should contain the gateway token and model provider settings from your environment variables.*
+*Expected Result: All commands return versions/output without "command not found" or "permission denied" (socket error). Opencode should display its help menu.*
 
 ### 3. Verification of Sandbox Docker Capability
 Ask the OpenClaw agent to perform a docker-related task, for example:
 > "Run a hello-world docker container and tell me the output."
 
 *Expected Result: OpenClaw should be able to execute the docker command through its native command skill and return the success message.*
+
+### 4. Verification of Opencode Capability
+Ask the OpenClaw agent to use the `opencode` tool:
+> "Use the opencode command to list the files in the current directory and explain what this repo is about."
+
+*Expected Result: OpenClaw should be able to execute `opencode` and return its output.*
+
+### 5. Opencode Fallback & Knowledge Test
+Run this specific command in the container terminal to verify that the environment variables and configuration are correctly "nailed":
+```bash
+# Test 1: Verify environment variables are exported
+echo $OPENAI_MODEL
+
+# Test 2: Verify the generated .env file
+cat /home/node/.env
+
+# Test 3: Run opencode with a specific query about the codebase
+# This verifies that opencode can read the repo and use the fallback LLM
+opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw and Opencode configuration."
+```
+*Expected Result:*
+1. `$OPENAI_MODEL` should match your `OPENAI_DEFAULT_MODEL`.
+2. `/home/node/.env` should contain the correct keys and base URL.
+3. `opencode` should successfully return a summary of the `entrypoint.sh` logic, proving it has LLM access and repo-reading capability.
 
 ## Failure Logs
 *Currently: No failures recorded. All environment and build tests passed during the upgrade session.*
