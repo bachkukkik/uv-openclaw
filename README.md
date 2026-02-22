@@ -49,7 +49,6 @@ services:
 | `OPENAI_API_BASE` | Base URL for the OpenAI provider | `https://api.openai.com/v1` |
 | `GEMINI_API_KEY` | API Key for Google Gemini | - |
 | `BROWSERLESS_BASE_URL` | WebSocket URL for Browserless | - |
-| `OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Disable Control UI device pairing (Security Risk) | `false` |
 
 ## Troubleshooting: Pairing Required (1008)
 

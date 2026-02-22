@@ -28,7 +28,6 @@ I performed a full system check by building the container and executing verifica
 | **Configuration** | **PASS** | `entrypoint.sh` correctly generated `openclaw.json` with token. |
 | **Opencode Fallback** | **PASS** | `.env` created for Opencode with primary model and keys. |
 | **LiteLLM API Fix** | **PASS** | `openai-completions` correctly mapped for LiteLLM providers. |
-| **Pairing Logic** | **PENDING** | `OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH` correctly toggles pairing requirement. |
 
 ## Deployment Verification Test Case
 
@@ -105,20 +104,11 @@ opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw
 
 Verify that the gateway correctly handles Control UI pairing.
 
-#### Scenario A: Pairing Required (Default)
-
 1. Deploy the gateway without any extra flags.
 2. Access the OpenClaw Control UI.
 3. *Expected Result: Connection fails with "disconnected (1008): pairing required".*
 4. Run `openclaw devices approve <id>` in the terminal.
 5. *Expected Result: Connection succeeds after refreshing the UI.*
-
-#### Scenario B: Pairing Bypassed
-
-1. Set `OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`.
-2. Deploy the gateway.
-3. Access the OpenClaw Control UI.
-4. *Expected Result: Connection succeeds immediately using only the token.*
 
 ## Failure Logs
 

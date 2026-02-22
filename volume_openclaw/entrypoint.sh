@@ -14,10 +14,7 @@ node -e '
   const path = "/home/node/.openclaw/openclaw.json";
   const env = process.env;
 
-  const isBypassEnabled = env.OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH === "true";
-  const shouldOverride = env.OPENCLAW_OVERRIDE_CONFIG === "true" || isBypassEnabled;
-
-  if (fs.existsSync(path) && !shouldOverride) {
+  if (fs.existsSync(path) && env.OPENCLAW_OVERRIDE_CONFIG !== "true") {
     console.log("OpenClaw configuration already exists. Skipping initialization.");
     process.exit(0);
   }
@@ -34,10 +31,7 @@ node -e '
   let config = {
     commands: { native: "auto", nativeSkills: "auto" },
     gateway: {
-      controlUi: { 
-        allowInsecureAuth: true,
-        dangerouslyDisableDeviceAuth: env.OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH === "true"
-      },
+      controlUi: { allowInsecureAuth: true },
       auth: { mode: "token", token: token },
       trustedProxies: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
       port: 18789,
