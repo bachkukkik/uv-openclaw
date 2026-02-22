@@ -31,7 +31,10 @@ node -e '
   let config = {
     commands: { native: "auto", nativeSkills: "auto" },
     gateway: {
-      controlUi: { allowInsecureAuth: true },
+      controlUi: { 
+        allowInsecureAuth: true,
+        dangerouslyDisableDeviceAuth: env.OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH === "true"
+      },
       auth: { mode: "token", token: token },
       trustedProxies: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
       port: 18789,
