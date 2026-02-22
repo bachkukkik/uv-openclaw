@@ -1,31 +1,41 @@
-# OpenClaw Docker Gateway
+# OpenClaw Gateway (UV-Enabled)
 
-A standardized Docker deployment for the OpenClaw Gateway (v2026.2.17+).
+A high-performance, containerized OpenClaw Gateway environment optimized for agentic development, CI/CD, and Docker-in-Docker operations.
 
-## Features
-- **Auto-Config**: Automatically maps environment variables to `openclaw.json` at startup.
-- **Provider Support**: Ready-to-use configuration for OpenAI, LiteLLM, and Gemini.
-- **Browser Control**: Integrated Browserless configuration.
-- **Self-Healing**: Automatic creation of required directory structures.
+## Goals & Promises
 
-## Quick Start
+- **Agentic Power**: Pre-configured with `gh` CLI and `uv` to enable agents to perform complex CI/CD and Python development tasks out of the box.
+- **Docker-in-Docker (DooD)**: Built to manage sibling containers. Designed specifically for development workflows where the agent needs to build or inspect Docker-based repositories.
+- **Zero-Config Startup**: Automatically generates a compliant `v2026` OpenClaw configuration from environment variables via a smart entrypoint script.
+- **Security & Efficiency**: Uses `uv` for lightning-fast Python package management and implements file descriptor optimizations to prevent common gateway bottlenecks.
+- **Clean Repo Policy**: Maintains a strict `llms_txt` policy to keep documentation in sync without cluttering the git history.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/bachkukkik/uv-openclaw.git
-   cd uv-openclaw
-   ```
+## Included Tools
 
-2. **Configure your environment**:
-   Copy `.env.example` to `.env` and fill in your keys:
-   ```bash
-   cp .env.example .env
-   ```
+| Tool | Purpose |
+|------|---------|
+| **OpenClaw Gateway** | Core agentic bridge. |
+| **UV** | High-performance Python package installer and resolver. |
+| **GH CLI** | GitHub's official command-line tool for agentic CI/CD. |
+| **Docker CLI** | For managing Docker environments (DooD mode). |
+| **Node.js** | Runtime for OpenClaw and custom scripts. |
 
-3. **Deploy with Docker Compose**:
-   ```bash
-   docker compose up -d
-   ```
+## Quick Start (Dokploy / Docker Compose)
+
+1. Set your `OPENCLAW_GATEWAY_TOKEN`.
+2. Ensure `/var/run/docker.sock` is mounted for DooD support.
+3. Deploy.
+
+```yaml
+services:
+  openclaw-gateway:
+    image: uv-openclaw
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - openclaw_config:/home/node/.openclaw
+    environment:
+      - OPENCLAW_GATEWAY_TOKEN=your_secure_token
+```
 
 ## Environment Variables
 
@@ -42,4 +52,5 @@ A standardized Docker deployment for the OpenClaw Gateway (v2026.2.17+).
 ## Project Structure
 - `volume_openclaw/`: Contains the `Dockerfile` and `entrypoint.sh` for the build.
 - `docker-compose.yml`: Main deployment configuration.
-- `.env.example`: Template for environment configuration.
+- `AGENTS.md`: Development & deployment guide for AI agents.
+- `TESTING.md`: Test cases and system check results.
