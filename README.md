@@ -68,19 +68,9 @@ If you see the error `disconnected (1008): pairing required` in the Control UI, 
    docker exec -it openclaw-gateway openclaw devices approve <requestId>
    ```
 
-### Option 2: Disable Pairing (Trusted Networks Only)
-
-Set this environment variable to `true` to bypass pairing checks:
-
-```yaml
-environment:
-  - OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH=true
-```
-
-> [!WARNING]
-> This is a security downgrade. Only use it in private, trusted environments.
-
 ## Project Structure
+
+ Benjamin
 
 - `volume_openclaw/`: Contains the `Dockerfile` and `entrypoint.sh` for the build.
 - `docker-compose.yml`: Main deployment configuration.
