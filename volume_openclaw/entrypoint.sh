@@ -18,6 +18,10 @@ node -e '
   const isBypassEnabled = !pairingRequired;
   const shouldOverride = env.OPENCLAW_OVERRIDE_CONFIG === "true" || isBypassEnabled;
 
+  if (isBypassEnabled) {
+    console.log("OPENCLAW_REQUIRE_CONTROL_UI_PAIRING=false detected. Forcing configuration refresh to bypass pairing.");
+  }
+
   if (fs.existsSync(path) && !shouldOverride) {
     console.log("OpenClaw configuration already exists. Skipping initialization.");
     process.exit(0);
@@ -40,7 +44,11 @@ node -e '
         dangerouslyDisableDeviceAuth: !pairingRequired
       },
       auth: { mode: "token", token: token },
-      trustedProxies: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
+      trustedProxies: [
+        "127.0.0.1/32", "::1/128",
+        "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+        "fd00::/8", "::ffff:172.16.0.0/12", "::ffff:10.0.0.0/8", "::ffff:192.168.0.0/16"
+      ],
       port: 18789,
       mode: "local",
       bind: "lan"

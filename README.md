@@ -49,6 +49,7 @@ services:
 | `OPENAI_API_BASE` | Base URL for the OpenAI provider | `https://api.openai.com/v1` |
 | `GEMINI_API_KEY` | API Key for Google Gemini | - |
 | `BROWSERLESS_BASE_URL` | WebSocket URL for Browserless | - |
+| `OPENCLAW_REQUIRE_CONTROL_UI_PAIRING` | Set to `false` to bypass pairing (Security Risk) | `true` |
 
 ## Troubleshooting: Pairing Required (1008)
 
@@ -67,6 +68,19 @@ If you see the error `disconnected (1008): pairing required` in the Control UI, 
    ```bash
    docker exec -it openclaw-gateway openclaw devices approve <requestId>
    ```
+
+### Option 2: Bypass Pairing (Trusted Networks)
+
+Set this environment variable to `false` to bypass the pairing check:
+
+```yaml
+environment:
+  - OPENCLAW_REQUIRE_CONTROL_UI_PAIRING=false
+```
+
+> [!TIP]
+> **One-Click Connect**: You can also bypass manual token entry by opening the UI with the token in the URL:
+> `https://your-gateway.io/chat?token=YOUR_GATEWAY_TOKEN`
 
 ## Project Structure
 
