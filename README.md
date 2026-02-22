@@ -13,7 +13,7 @@ A high-performance, containerized OpenClaw Gateway environment optimized for age
 ## Included Tools
 
 | Tool | Purpose |
-|------|---------|
+| ------ | --------- |
 | **OpenClaw Gateway** | Core agentic bridge. |
 | **UV** | High-performance Python package installer and resolver. |
 | **GH CLI** | GitHub's official command-line tool for agentic CI/CD. |
@@ -41,7 +41,7 @@ services:
 ## Environment Variables
 
 | Variable | Description | Default |
-|----------|-------------|---------|
+| ---------- | ------------- | --------- |
 | `OPENCLAW_GATEWAY_TOKEN` | Token for Gateway authentication | (Required) |
 | `DEFAULT_MODEL_PROVIDER` | Provider for the primary agent model | `openai` |
 | `OPENAI_DEFAULT_MODEL` | ID of the primary agent model | `openai/gpt-4o` |

@@ -5,7 +5,7 @@ This document summarizes the test cases conducted to verify the repository upgra
 ## Test Results (Sun Feb 22 2026)
 
 | Test Case | Description | Result |
-|-----------|-------------|--------|
+| --- | --- | --- |
 | **Environment Check** | Verify `uv`, `gh`, `node`, and `openclaw` are installed in the image. | **PASS** |
 | **DooD Verification** | Verify `docker` CLI and socket access inside the container. | **PASS** |
 | **Config Generation** | Verify `entrypoint.sh` generates `openclaw.json` using the v2026 schema. | **PASS** |
@@ -16,7 +16,7 @@ This document summarizes the test cases conducted to verify the repository upgra
 I performed a full system check by building the container and executing verification commands internally.
 
 | Component | Status | Verification Command |
-|-----------|--------|----------------------|
+| --- | --- | --- |
 | **Python Tooling** | **PASS** | `uv --version` (v0.9.30) |
 | **GitHub CLI** | **PASS** | `gh --version` (v2.87.2) |
 | **Docker CLI** | **PASS** | `docker --version` (v29.2.1) |
