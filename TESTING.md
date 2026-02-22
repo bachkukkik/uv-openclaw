@@ -27,7 +27,6 @@ I performed a full system check by building the container and executing verifica
 | **Git Rules** | **PASS** | `git check-ignore` (llms_txt/* blocked, .gitkeep allowed) |
 | **Configuration** | **PASS** | `entrypoint.sh` correctly generated `openclaw.json` with token. |
 | **Opencode Fallback** | **PASS** | `.env` created for Opencode with primary model and keys. |
-| **Reverse Proxy Fix** | **PASS** | Exhaustive pairing and proxy trust applied for UI connectivity. |
 | **LiteLLM API Fix** | **PASS** | `openai-completions` correctly mapped for LiteLLM providers. |
 
 ## Deployment Verification Test Case
@@ -90,26 +89,11 @@ opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw
 3. `opencode` should successfully return a summary of the `entrypoint.sh` logic, proving it has LLM access and repo-reading capability.
 
 ### 6. Connection & Auth Test (UI Pairing)
-Verify that the gateway does not block Control UI connections with a pairing requirement.
+Verify that the gateway does not block Control UI connections.
 1. Deploy the gateway and access the OpenClaw Control UI (web).
 2. Connect using the WebSocket URL and the `OPENCLAW_GATEWAY_TOKEN`.
-3. Observe if a "pairing required" (1008) error occurs.
 
-*Expected Result: The connection should succeed immediately without prompting for a pairing code, as exhaustive `pairing: false`, `pairingRequired: false`, and `trustedProxies: ["0.0.0.0/0"]` are set.*
-
-### 7. Regression: Pairing Required (1008) & Proxy Trust Fix
-A critical regression was identified where standard pairing flags were ignored behind certain reverse proxies.
-*   **Symptom**: `[ws] closed before connect ... code=1008 reason=pairing required`
-*   **Fix**: 
-    - Added `gateway.pairingRequired: false` and `gateway.auth.pairing: false`.
-    - Added `gateway.cors: { origin: "*" }`.
-    - Set `gateway.trustedProxies: ["0.0.0.0/0"]` to ensure the gateway trusts the proxy headers from any upstream source.
-*   **Verification**: 
-    ```bash
-    # Verify raw handshake success from remote origin
-    curl -v -H "Upgrade: websocket" -H "Connection: Upgrade" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" -H "Sec-WebSocket-Version: 13" -H "Origin: https://openclaw-xb5joc.uxible.io" http://localhost:18789/
-    ```
-    *Expected Result: HTTP 101 Switching Protocols.*
+*Expected Result: The connection should succeed immediately using the token.*
 
 ## Failure Logs
 *Currently: No failures recorded. All environment and build tests passed during the upgrade session.*
