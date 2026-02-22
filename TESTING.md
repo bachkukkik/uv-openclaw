@@ -28,13 +28,16 @@ I performed a full system check by building the container and executing verifica
 | **Configuration** | **PASS** | `entrypoint.sh` correctly generated `openclaw.json` with token. |
 | **Opencode Fallback** | **PASS** | `.env` created for Opencode with primary model and keys. |
 | **LiteLLM API Fix** | **PASS** | `openai-completions` correctly mapped for LiteLLM providers. |
+| **Pairing Logic** | **PENDING** | `OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH` correctly toggles pairing requirement. |
 
 ## Deployment Verification Test Case
 
 Follow these steps once deployed in Dokploy to ensure the OpenClaw Gateway is operating correctly in Docker-in-Docker mode.
 
 ### 1. Verification of Tools
+
 Access the container terminal and run:
+
 ```bash
 # Verify Python/UV
 uv --version
@@ -45,10 +48,13 @@ gh --version
 # Verify Docker Access (The "Docker-in-Docker" requirement)
 docker ps
 ```
+
 *Expected Result: All commands return versions/output without "command not found" or "permission denied" (socket error).*
 
 ### 2. Verification of OpenClaw Gateway
+
 Check the logs to ensure the gateway started with the preconfigured token:
+
 ```bash
 # Verify OpenClaw Gateway
 cat /home/node/.openclaw/openclaw.json
@@ -56,22 +62,27 @@ cat /home/node/.openclaw/openclaw.json
 # Verify Opencode CLI
 opencode --help
 ```
+
 *Expected Result: All commands return versions/output without "command not found" or "permission denied" (socket error). Opencode should display its help menu.*
 
 ### 3. Verification of Sandbox Docker Capability
+
 Ask the OpenClaw agent to perform a docker-related task, for example:
 > "Run a hello-world docker container and tell me the output."
 
 *Expected Result: OpenClaw should be able to execute the docker command through its native command skill and return the success message.*
 
 ### 4. Verification of Opencode Capability
+
 Ask the OpenClaw agent to use the `opencode` tool:
 > "Use the opencode command to list the files in the current directory and explain what this repo is about."
 
 *Expected Result: OpenClaw should be able to execute `opencode` and return its output.*
 
 ### 5. Opencode Fallback & Knowledge Test
+
 Run this specific command in the container terminal to verify that the environment variables and configuration are correctly "nailed":
+
 ```bash
 # Test 1: Verify environment variables are exported
 echo $OPENAI_MODEL
@@ -83,17 +94,32 @@ cat /home/node/.env
 # This verifies that opencode can read the repo and use the fallback LLM
 opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw and Opencode configuration."
 ```
+
 *Expected Result:*
+
 1. `$OPENAI_MODEL` should match your `OPENAI_DEFAULT_MODEL`.
 2. `/home/node/.env` should contain the correct keys and base URL.
 3. `opencode` should successfully return a summary of the `entrypoint.sh` logic, proving it has LLM access and repo-reading capability.
 
 ### 6. Connection & Auth Test (UI Pairing)
-Verify that the gateway does not block Control UI connections.
-1. Deploy the gateway and access the OpenClaw Control UI (web).
-2. Connect using the WebSocket URL and the `OPENCLAW_GATEWAY_TOKEN`.
 
-*Expected Result: The connection should succeed immediately using the token.*
+Verify that the gateway correctly handles Control UI pairing.
+
+#### Scenario A: Pairing Required (Default)
+
+1. Deploy the gateway without any extra flags.
+2. Access the OpenClaw Control UI.
+3. *Expected Result: Connection fails with "disconnected (1008): pairing required".*
+4. Run `openclaw devices approve <id>` in the terminal.
+5. *Expected Result: Connection succeeds after refreshing the UI.*
+
+#### Scenario B: Pairing Bypassed
+
+1. Set `OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`.
+2. Deploy the gateway.
+3. Access the OpenClaw Control UI.
+4. *Expected Result: Connection succeeds immediately using only the token.*
 
 ## Failure Logs
+
 *Currently: No failures recorded. All environment and build tests passed during the upgrade session.*
