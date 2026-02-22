@@ -14,7 +14,10 @@ node -e '
   const path = "/home/node/.openclaw/openclaw.json";
   const env = process.env;
 
-  if (fs.existsSync(path) && env.OPENCLAW_OVERRIDE_CONFIG !== "true") {
+  const isBypassEnabled = env.OPENCLAW_DANGEROUSLY_DISABLE_DEVICE_AUTH === "true";
+  const shouldOverride = env.OPENCLAW_OVERRIDE_CONFIG === "true" || isBypassEnabled;
+
+  if (fs.existsSync(path) && !shouldOverride) {
     console.log("OpenClaw configuration already exists. Skipping initialization.");
     process.exit(0);
   }
