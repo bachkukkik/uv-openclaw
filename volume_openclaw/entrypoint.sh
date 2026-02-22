@@ -31,14 +31,23 @@ node -e '
   let config = {
     commands: { native: "auto", nativeSkills: "auto" },
     gateway: {
-      controlUi: { allowInsecureAuth: true, pairing: false },
-      auth: { mode: "token", token: token },
+      mode: "local",
+      bind: "lan",
+      port: 18789,
+      auth: { 
+        mode: "token", 
+        token: token,
+        pairing: false
+      },
       pairing: false,
       pairingRequired: false,
-      trustedProxies: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
-      port: 18789,
-      mode: "local",
-      bind: "lan"
+      controlUi: { 
+        enabled: true,
+        allowInsecureAuth: true, 
+        pairing: false 
+      },
+      trustedProxies: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32", "0.0.0.0/0"],
+      cors: { origin: "*" }
     }
   };
 
