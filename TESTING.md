@@ -93,7 +93,13 @@ Verify that the gateway does not block Control UI connections with a pairing req
 2. Connect using the WebSocket URL and the `OPENCLAW_GATEWAY_TOKEN`.
 3. Observe if a "pairing required" (1008) error occurs.
 
-*Expected Result: The connection should succeed immediately without prompting for a pairing code, as `pairing: false` is explicitly set in the config.*
+*Expected Result: The connection should succeed immediately without prompting for a pairing code, as `pairing: false` and `pairingRequired: false` are explicitly set in the config.*
+
+### 7. Regression: Pairing Required (1008) Fix
+A regression was identified where `pairing: false` alone was insufficient to stop the `pairing required` 1008 closure in some environments.
+*   **Symptom**: `[ws] closed before connect ... code=1008 reason=pairing required`
+*   **Fix**: Added `gateway.pairingRequired: false` to the configuration schema.
+*   **Verification**: Ensure logs show successful connection from remote IPs behind reverse proxies (e.g., `origin=https://openclaw-xb5joc.uxible.io`).
 
 ## Failure Logs
 *Currently: No failures recorded. All environment and build tests passed during the upgrade session.*
