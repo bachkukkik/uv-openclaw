@@ -49,7 +49,7 @@ services:
 | `OPENAI_API_BASE` | Base URL for the OpenAI provider | `https://api.openai.com/v1` |
 | `GEMINI_API_KEY` | API Key for Google Gemini | - |
 | `BROWSERLESS_BASE_URL` | WebSocket URL for Browserless | - |
-| `OPENCLAW_REQUIRE_CONTROL_UI_PAIRING` | Set to `true` to require manual pairing (Secure Mode) | `false` |
+| `OPENCLAW_REQUIRE_CONTROL_UI_PAIRING` | Set to `false` to bypass pairing (Security Risk) | `true` |
 
 ## Troubleshooting: Pairing Required (1008)
 
@@ -69,21 +69,19 @@ If you see the error `disconnected (1008): pairing required` in the Control UI, 
    docker exec -it openclaw-gateway openclaw devices approve <requestId>
    ```
 
-### Option 2: Enable Secure Pairing
+### Option 2: Bypass Pairing (Trusted Networks Only)
 
-By default, pairing is bypassed for immediate connectivity in trusted environments. To enable standard device pairing (highly recommended for public networks), set this variable to `true`:
+If you are running in a private, trusted environment and want to disable the pairing requirement, set this variable to `false`:
 
 ```yaml
 environment:
-  - OPENCLAW_REQUIRE_CONTROL_UI_PAIRING=true
+  - OPENCLAW_REQUIRE_CONTROL_UI_PAIRING=false
 ```
 
-> [!NOTE]
-> When set to `true`, you must manually approve each device using the CLI as described above.
+> [!WARNING]
+> This is a security downgrade. Only use it in trusted environments.
 
 ## Project Structure
-
- Benjamin
 
 - `volume_openclaw/`: Contains the `Dockerfile` and `entrypoint.sh` for the build.
 - `docker-compose.yml`: Main deployment configuration.
