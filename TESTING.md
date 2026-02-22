@@ -87,5 +87,13 @@ opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw
 2. `/home/node/.env` should contain the correct keys and base URL.
 3. `opencode` should successfully return a summary of the `entrypoint.sh` logic, proving it has LLM access and repo-reading capability.
 
+### 6. Connection & Auth Test (UI Pairing)
+Verify that the gateway does not block Control UI connections with a pairing requirement.
+1. Deploy the gateway and access the OpenClaw Control UI (web).
+2. Connect using the WebSocket URL and the `OPENCLAW_GATEWAY_TOKEN`.
+3. Observe if a "pairing required" (1008) error occurs.
+
+*Expected Result: The connection should succeed immediately without prompting for a pairing code, as `pairing: false` is explicitly set in the config.*
+
 ## Failure Logs
 *Currently: No failures recorded. All environment and build tests passed during the upgrade session.*
