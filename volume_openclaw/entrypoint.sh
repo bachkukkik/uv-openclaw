@@ -14,7 +14,11 @@ node -e '
   const path = "/home/node/.openclaw/openclaw.json";
   const env = process.env;
 
-  if (fs.existsSync(path) && env.OPENCLAW_OVERRIDE_CONFIG !== "true") {
+  const pairingRequired = env.OPENCLAW_REQUIRE_CONTROL_UI_PAIRING !== "false";
+  const isBypassEnabled = !pairingRequired;
+  const shouldOverride = env.OPENCLAW_OVERRIDE_CONFIG === "true" || isBypassEnabled;
+
+  if (fs.existsSync(path) && !shouldOverride) {
     console.log("OpenClaw configuration already exists. Skipping initialization.");
     process.exit(0);
   }
@@ -31,7 +35,10 @@ node -e '
   let config = {
     commands: { native: "auto", nativeSkills: "auto" },
     gateway: {
-      controlUi: { allowInsecureAuth: true },
+      controlUi: { 
+        allowInsecureAuth: true,
+        dangerouslyDisableDeviceAuth: !pairingRequired
+      },
       auth: { mode: "token", token: token },
       trustedProxies: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
       port: 18789,
