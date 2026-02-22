@@ -98,8 +98,24 @@ node -e '
 
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
   console.log("OpenClaw configuration updated successfully (v2.3).");
+
+  // 4.5 Opencode Fallback Setup
+  const opencodeEnvPath = "/home/node/.env";
+  const opencodeEnv = [
+    `OPENAI_API_KEY=${env.OPENAI_API_KEY || ""}`,
+    `OPENAI_API_BASE=${env.OPENAI_API_BASE || ""}`,
+    `OPENAI_MODEL=${env.OPENAI_DEFAULT_MODEL || ""}`,
+    `DEFAULT_MODEL=${env.OPENAI_DEFAULT_MODEL || ""}`
+  ].join("\n");
+  fs.writeFileSync(opencodeEnvPath, opencodeEnv);
+  console.log("Opencode fallback environment initialized.");
 '
 
 # 5. Start Gateway
 echo "Starting OpenClaw gateway..."
+
+# Export fallbacks for opencode CLI
+export OPENAI_MODEL="${OPENAI_DEFAULT_MODEL}"
+export DEFAULT_MODEL="${OPENAI_DEFAULT_MODEL}"
+
 exec openclaw gateway --bind lan --port 18789 --allow-unconfigured

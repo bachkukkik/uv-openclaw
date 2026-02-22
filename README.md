@@ -19,6 +19,7 @@ A high-performance, containerized OpenClaw Gateway environment optimized for age
 | **GH CLI** | GitHub's official command-line tool for agentic CI/CD. |
 | **Docker CLI** | For managing Docker environments (DooD mode). |
 | **Node.js** | Runtime for OpenClaw and custom scripts. |
+| **Opencode** | Specialized AI agent for code modification and repository analysis. |
 
 ## Quick Start (Dokploy / Docker Compose)
 
