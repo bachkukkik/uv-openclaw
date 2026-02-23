@@ -4,7 +4,7 @@ This project provides a standardized Docker environment for running an OpenClaw 
 
 ## Technical Context
 
-- **Base Image**: `ghcr.io/astral-sh/uv:python3.14-bookworm-slim`
+- **Base Image**: `ghcr.io/astral-sh/uv:python:3.14-slim`
 - **Runtime Environment**: Docker (standard or rootless).
 - **Network**: Uses external network `${CF_NETWORK}` by default.
 - **Port**: Gateway listens on port `18789` (Internal).

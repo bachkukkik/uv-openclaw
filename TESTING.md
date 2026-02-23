@@ -105,6 +105,27 @@ opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw
 2. `/home/node/.env` should contain the correct keys and base URL.
 3. `opencode` should successfully return a summary of the `entrypoint.sh` logic, proving it has LLM access and repo-reading capability.
 
+### entrypoint.sh
+
+I implemented a robust bypass for the v2026 onboarding TUI by using CI environment variables and input redirection.
+
+#### [entrypoint.sh](file:///Users/bachkukkik/Archives/GitHub_Repo/sandbox/uv-openclaw/volume_openclaw/entrypoint.sh)
+
+```diff
+ echo "Starting OpenClaw gateway with manual-aligned config..."
+ export NO_ONBOARD=1
+ export OPENCLAW_NO_PROMPT=1
++export CI=true
+-exec openclaw gateway run
++exec openclaw gateway run < /dev/null
+```
+
+## Verification Results
+
+- **Healthy Status**: The container now reaches a `healthy` state automatically.
+- **TUI Bypassed**: Logs confirm the gateway skips the "QuickStart" and "Skills" wizards and starts the listening server immediately.
+- **No OOM Crash**: By avoiding the skill scan, memory usage remains within limits (Exit code 137 resolved).
+
 ### 6. Connection & Auth Test (Bypass Mode)
 
 Verify that the gateway correctly handles authentication when pairing is disabled.
