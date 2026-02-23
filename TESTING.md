@@ -8,8 +8,11 @@ This document summarizes the test cases conducted to verify the repository upgra
 | --- | --- | --- |
 | **Environment Check** | Verify `uv`, `gh`, `node`, and `openclaw` are installed in the image. | **PASS** |
 | **DooD Verification** | Verify `docker` CLI and socket access inside the container. | **PASS** |
-| **Config Generation** | Verify `entrypoint.sh` generates `openclaw.json` using the v2026 schema. | **PASS** |
+| **Config Generation** | Verify `entrypoint.sh` generates `openclaw.json` with lean variables. | **PASS** |
 | **Git Protection** | Verify `llms_txt/*` is ignored by Git, excluding `.gitkeep`. | **PASS** |
+| **Exit 137 Guard** | Verify shell entry no longer triggers onboarding loops or memory spikes. | **PASS** |
+| **Auth Alignment** | Verify Dashboard connects via proxy with tokenized URL. | **PASS** |
+| **Network Isolation** | Verify no direct host port bindings exist. | **PASS** |
 
 ## Full System Check (Automated) - Sun Feb 22 2026
 
@@ -28,6 +31,8 @@ I performed a full system check by building the container and executing verifica
 | **Configuration** | **PASS** | `entrypoint.sh` correctly generated `openclaw.json` with token. |
 | **Opencode Fallback** | **PASS** | `.env` created for Opencode with primary model and keys. |
 | **LiteLLM API Fix** | **PASS** | `openai-completions` correctly mapped for LiteLLM providers. |
+| **Exit 137 Stability** | **PASS** | Shell access is instantaneous and silent (no memory loops). |
+| **Dashboard Auth**    | **PASS** | Dashboard connects via tokenized URL on port-isolated network. |
 
 ## Deployment Verification Test Case
 
@@ -100,16 +105,39 @@ opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw
 2. `/home/node/.env` should contain the correct keys and base URL.
 3. `opencode` should successfully return a summary of the `entrypoint.sh` logic, proving it has LLM access and repo-reading capability.
 
-### 6. Connection & Auth Test (UI Pairing)
+### 6. Connection & Auth Test (Bypass Mode)
 
-Verify that the gateway correctly handles Control UI pairing.
+Verify that the gateway correctly handles authentication when pairing is disabled.
 
-1. Deploy the gateway without any extra flags.
-2. Access the OpenClaw Control UI.
-3. *Expected Result: Connection fails with "disconnected (1008): pairing required".*
-4. Run `openclaw devices approve <id>` in the terminal.
-5. *Expected Result: Connection succeeds after refreshing the UI.*
+1. Set `OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH=true` and `OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH=true` in `.env`.
+2. Visit your proxy URL with the token: `http://openclaw.yourdomain.com/#token=<your-token>`.
+3. *Expected Result: Dashboard connects immediately without a pairing prompt.*
 
-## Failure Logs
+### 7. Stability Test (Exit Code 137 Prevention)
 
-*Currently: No failures recorded. All environment and build tests passed during the upgrade session.*
+Verify that entering the shell doesn't trigger a crash.
+
+1. Run `docker exec -it <container> bash`.
+2. Observe the terminal for ~10 seconds.
+3. *Expected Result: No onboarding prompt appears. Shell remains active and stable.*
+
+### 8. Non-Interactive Fresh Deployment
+
+Verify that the gateway can bootstrap from zero without user input.
+
+1. Clear the config: `docker volume rm uv-openclaw_openclaw_config`.
+2. Start the container: `docker compose up -d`.
+3. Check logs: `docker logs <container>`.
+4. *Expected Result: "OpenClaw configuration updated successfully" appears. Gateway starts listening without waiting for input.*
+
+### Case 1: Missing External Network (CF_NETWORK)
+
+- **Scenario**: `CF_NETWORK` is set in `.env` but the network does not exist in Docker.
+- **Fail Message**: `network <name> declared as external, but could not be found`.
+- **Mitigation**: Verify network exists with `docker network ls` or change `external: true` to `false` in `docker-compose.yml` for local-only testing.
+
+### Case 2: Incomplete LLM Environment
+
+- **Scenario**: `OPENAI_API_BASE` is provided without `OPENAI_API_KEY`.
+- **Fail Message**: Gateway may start but agent tasks will fail with `401 Unauthorized`.
+- **Verification**: Run `openclaw status --deep` inside the container to check provider health.
