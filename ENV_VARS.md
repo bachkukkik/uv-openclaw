@@ -6,7 +6,7 @@ This document provides a comprehensive list of all environment variables support
 
 | Variable | Description | Default |
 | :--- | :--- | :--- |
-| `UV_IMAGE_TAG` | Docker image tag for the `uv` base. | `python3.14-bookworm-slim` |
+| `PYTHON_IMAGE_TAG` | Docker image tag for the `uv` base. | `python:3.14-slim` |
 | `OPENCLAW_GATEWAY_TOKEN` | Secret token for dashboard and API authentication. | **(Required)** |
 | `OPENCLAW_GATEWAY_PORT` | Port the gateway listens on inside the container. | `18789` |
 | `OPENCLAW_GATEWAY_BIND` | Network interface to bind (`loopback`, `lan`, `all`). | `lan` |
