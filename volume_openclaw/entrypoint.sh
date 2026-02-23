@@ -53,9 +53,7 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
       "models": {
         "openai/gpt-4o": {},
         "${DEFAULT_MODEL_PROVIDER}/${OPENAI_DEFAULT_MODEL}": {
-          "alias": "primary-model",
-          "contextWindow": ${OPENAI_DEFAULT_MODEL_CONTEXT_WINDOW:-262144},
-          "maxTokens": ${OPENAI_DEFAULT_MODEL_MAX_TOKENS:-8192}
+          "alias": "primary-model"
         }
       }
     }
