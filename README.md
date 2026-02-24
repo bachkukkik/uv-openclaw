@@ -44,12 +44,7 @@ services:
 | ---------- | ------------- | --------- |
 | `OPENCLAW_GATEWAY_TOKEN` | Token for Gateway authentication | (Required) |
 | `OPENCLAW_GATEWAY_PORT` | Internal port for the Gateway | `18789` |
-| `OPENCLAW_GATEWAY_BIND` | Network interface to bind to (`loopback`, `lan`, `all`) | `lan` |
-| `OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH` | Allow authentication over insecure HTTP | `true` |
-| `OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Disable device pairing requirement | `true` |
 | `OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK` | Allow Host-header origin fallback for non-loopback access | `true` |
-| `OPENCLAW_GATEWAY_NO_PROMPT` | Disable interactive prompts in the CLI | `1` |
-| `OPENCLAW_GATEWAY_NO_ONBOARD` | Disable the onboarding wizard | `1` |
 | `OPENCLAW_OVERRIDE_CONFIG` | Overwrite `openclaw.json` on every start | `false` |
 | `DEFAULT_MODEL_PROVIDER` | Provider for the primary agent model | `openai` |
 | `OPENAI_DEFAULT_MODEL` | ID of the primary agent model | `openai/gpt-4o` |

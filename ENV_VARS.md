@@ -9,7 +9,6 @@ This document provides a comprehensive list of all environment variables support
 | `OPENCLAW_IMAGE` | Docker image tag for the base image. | `alpine/openclaw:main` |
 | `OPENCLAW_GATEWAY_TOKEN` | Secret token for dashboard and API authentication. | **(Required)** |
 | `OPENCLAW_GATEWAY_PORT` | Port the gateway listens on inside the container. | `18789` |
-| `OPENCLAW_GATEWAY_BIND` | Network interface to bind (`loopback`, `lan`, `all`). | `lan` |
 | `OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH` | Allow login over HTTP (non-HTTPS). | `true` |
 | `OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Disable one-time device pairing requirement. | `true` |
 | `OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK` | Allow Host-header origin fallback for non-loopback access. | `true` |
@@ -27,7 +26,6 @@ These variables configure the primary model used by agents.
 | `OPENAI_DEFAULT_MODEL_MAX_TOKENS` | Maximum completion tokens for the primary model. | `8192` |
 | `OPENAI_API_KEY` | API Key for the default provider. | - |
 | `OPENAI_API_BASE` | Base URL for the default provider. | `https://api.openai.com/v1` |
-| `GEMINI_API_KEY` | API Key for Google Gemini (optional). | - |
 
 ## Browser Control
 
@@ -42,5 +40,3 @@ These variables configure the primary model used by agents.
 | :--- | :--- | :--- |
 | `HOME` | Home directory inside the container. | `/home/node` |
 | `TERM` | Terminal type for interactive shells. | `xterm-256color` |
-| `OPENCLAW_GATEWAY_NO_ONBOARD` | Disables the interactive onboarding wizard. | `1` |
-| `OPENCLAW_GATEWAY_NO_PROMPT` | Disables interactive prompts in the CLI. | `1` |

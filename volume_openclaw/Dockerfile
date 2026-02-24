@@ -45,8 +45,6 @@ RUN curl -fsSL https://opencode.ai/install | bash
 
 # 7. Setup environment
 ENV HOME=/home/node
-ENV OPENCLAW_GATEWAY_NO_ONBOARD=1
-ENV OPENCLAW_GATEWAY_NO_PROMPT=1
 ENV CI=true
 ENV TERM=xterm-256color
 # Add all possible OpenClaw/uv/opencode paths to PATH
