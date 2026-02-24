@@ -17,7 +17,7 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     echo "Writing full OpenClaw configuration..."
     
     # Use 18789 if port is not set
-    GW_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
+    OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
     
     # We write the full JSON manually to bypass v2026 CLI hangs (142% CPU)
     # and to ensure a perfect meta-tagged config that satisfies the gateway.
@@ -70,7 +70,7 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     }
   },
     "gateway": {
-      "port": ${GW_PORT},
+      "port": ${OPENCLAW_GATEWAY_PORT},
       "mode": "local",
       "bind": "custom",
       "customBindHost": "0.0.0.0",
@@ -111,6 +111,6 @@ export CI=true
 # Use flags for token, port, and bind to reduce reliance on JSON if needed
 exec openclaw gateway run \
     --token "${OPENCLAW_GATEWAY_TOKEN}" \
-    --port "${GW_PORT}" \
+    --port "${OPENCLAW_GATEWAY_PORT}" \
     --bind "custom" < /dev/null
 
