@@ -16,6 +16,9 @@ mkdir -p /home/node/.openclaw/workspace
 if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}" = "true" ]; then
     echo "Writing full OpenClaw configuration..."
     
+    # Use 18789 if port is not set
+    GW_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
+    
     # We write the full JSON manually to bypass v2026 CLI hangs (142% CPU)
     # and to ensure a perfect meta-tagged config that satisfies the gateway.
     # The Antigravity extension is removed in the Dockerfile.
@@ -66,11 +69,11 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
       "workspace": "/home/node/.openclaw/workspace"
     }
   },
-  "gateway": {
-    "port": ${OPENCLAW_GATEWAY_PORT},
-    "mode": "local",
-    "bind": "custom",
-    "customBindHost": "0.0.0.0",
+    "gateway": {
+      "port": ${GW_PORT},
+      "mode": "local",
+      "bind": "custom",
+      "customBindHost": "0.0.0.0",
     "controlUi": {
       "allowInsecureAuth": ${OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH},
       "dangerouslyDisableDeviceAuth": ${OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH},
@@ -108,6 +111,6 @@ export CI=true
 # Use flags for token, port, and bind to reduce reliance on JSON if needed
 exec openclaw gateway run \
     --token "${OPENCLAW_GATEWAY_TOKEN}" \
-    --port "${OPENCLAW_GATEWAY_PORT}" \
+    --port "${GW_PORT}" \
     --bind "custom" < /dev/null
 
