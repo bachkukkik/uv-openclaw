@@ -20,6 +20,7 @@ A high-performance, containerized OpenClaw Gateway environment optimized for age
 | **Docker CLI** | For managing Docker environments (DooD mode). |
 | **Node.js** | Runtime for OpenClaw and custom scripts. |
 | **Opencode** | Specialized AI agent for code modification and repository analysis. |
+| **OpenSpec (OPSX)** | Specification-driven agentic workflow tool for structured development. |
 
 ## Quick Start (Dokploy / Docker Compose)
 
@@ -46,12 +47,13 @@ services:
 | `OPENCLAW_GATEWAY_PORT` | Internal port for the Gateway | `18789` |
 | `OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK` | Allow Host-header origin fallback for non-loopback access | `true` |
 | `OPENCLAW_OVERRIDE_CONFIG` | Overwrite `openclaw.json` on every start | `false` |
+| `OPENCODE_OVERRIDE_CONFIG` | Overwrite `opencode.json` on every start | `false` |
 | `DEFAULT_MODEL_PROVIDER` | Provider for the primary agent model | `openai` |
 | `OPENAI_DEFAULT_MODEL` | ID of the primary agent model | `openai/gpt-4o` |
 | `OPENAI_DEFAULT_MODEL_CONTEXT_WINDOW` | Default context window tokens | `262144` |
 | `OPENAI_DEFAULT_MODEL_MAX_TOKENS` | Default max completion tokens | `8192` |
 | `OPENAI_API_KEY` | API Key for OpenAI or LiteLLM | - |
-| `OPENAI_API_BASE` | Base URL for the OpenAI provider | `https://api.openai.com/v1` |
+| `OPENAI_API_BASE` | Base URL for OpenAI/LiteLLM (used by OpenClaw & Opencode) | `https://api.openai.com/v1` |
 | `GEMINI_API_KEY` | API Key for Google Gemini | - |
 | `BROWSERLESS_BASE_URL` | WebSocket URL for Browserless | - |
 

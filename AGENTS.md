@@ -25,7 +25,7 @@ The Gateway configuration is generated dynamically by `entrypoint.sh` using envi
 The configuration is strictly environment-driven. `entrypoint.sh` maps variables to their relevant JSON paths:
 
 - `OPENAI_DEFAULT_MODEL` -> `agents.defaults.model.primary` and `agents.defaults.models` key.
-- `OPENAI_API_KEY`/`OPENAI_API_BASE` -> `agents.defaults.models` details.
+- `OPENAI_API_KEY`/`OPENAI_API_BASE` -> `agents.defaults.models` details and fallback `.env` for Opencode/OpenSpec.
 - `BROWSERLESS_BASE_URL`/`TOKEN` -> `skills.config.browserless`.
 - `OPENCLAW_GATEWAY_*` -> `gateway` root settings.
 

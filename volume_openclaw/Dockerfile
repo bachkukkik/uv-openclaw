@@ -43,6 +43,9 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 # 6. Install Opencode
 RUN curl -fsSL https://opencode.ai/install | bash
 
+# 7. Install Openspec
+RUN npm install -g @fission-ai/openspec@latest
+
 # 7. Setup environment
 ENV HOME=/home/node
 ENV CI=true
