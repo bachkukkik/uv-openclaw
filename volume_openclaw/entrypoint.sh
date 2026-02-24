@@ -5,11 +5,11 @@ set -e
 ulimit -n 65535 2>/dev/null || true
 
 # Ensure all tool paths are included in the environment
-export PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/root/.opencode/bin:/root/.cargo/bin:/root/.local/bin
+export PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/root/.opencode/bin:/root/.openspec/bin:/root/.cargo/bin:/root/.local/bin
 
 # Ensure directory structure exists
 mkdir -p /home/node/.openclaw
-mkdir -p /home/node/.opencode
+mkdir -p /home/node/.config/opencode
 mkdir -p /home/node/.openclaw/workspace
 
 # 1. Initialize or Reset configuration
@@ -100,6 +100,35 @@ OPENAI_API_KEY=${OPENAI_API_KEY}
 OPENAI_API_BASE=${OPENAI_API_BASE}
 OPENAI_MODEL=${OPENAI_DEFAULT_MODEL}
 EOF
+fi
+
+# 2. Configure Opencode Global Config
+if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_CONFIG}" = "true" ]; then
+    echo "Writing global Opencode configuration..."
+    
+    # Construct base URL for OpenCode options
+    OPENCODE_BASE_URL="${OPENAI_API_BASE}"
+    
+    cat <<EOF > /home/node/.config/opencode/opencode.json
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "${DEFAULT_MODEL_PROVIDER}": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "${DEFAULT_MODEL_PROVIDER}",
+      "options": {
+        "baseURL": "${OPENCODE_BASE_URL}"
+      },
+      "models": {
+        "${OPENAI_DEFAULT_MODEL}": {
+          "name": "Default Model"
+        }
+      }
+    }
+  }
+}
+EOF
+    echo "Global Opencode configuration written."
 fi
 
 echo "Starting OpenClaw gateway in non-interactive mode..."
