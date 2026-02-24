@@ -32,7 +32,7 @@ I performed a full system check by building the container and executing verifica
 | **Opencode Fallback** | **PASS** | `.env` created for Opencode with primary model and keys. |
 | **LiteLLM API Fix** | **PASS** | `openai-completions` correctly mapped for LiteLLM providers. |
 | **Exit 137 Stability** | **PASS** | Shell access is instantaneous and silent (no memory loops). |
-| **Dashboard Auth**    | **PASS** | Dashboard connects via tokenized URL on port-isolated network. |
+| **Dashboard Auth** | **PASS** | Dashboard connects via tokenized URL on port-isolated network. |
 
 ## Deployment Verification Test Case
 
@@ -113,8 +113,8 @@ I implemented a robust bypass for the v2026 onboarding TUI by using CI environme
 
 ```diff
  echo "Starting OpenClaw gateway with manual-aligned config..."
- export NO_ONBOARD=1
- export OPENCLAW_NO_PROMPT=1
+ export OPENCLAW_GATEWAY_NO_ONBOARD=1
+ export OPENCLAW_GATEWAY_NO_PROMPT=1
 +export CI=true
 -exec openclaw gateway run
 +exec openclaw gateway run < /dev/null

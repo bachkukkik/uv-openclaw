@@ -73,7 +73,8 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     "customBindHost": "0.0.0.0",
     "controlUi": {
       "allowInsecureAuth": ${OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH},
-      "dangerouslyDisableDeviceAuth": ${OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH}
+      "dangerouslyDisableDeviceAuth": ${OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH},
+      "dangerouslyAllowHostHeaderOriginFallback": ${OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK:-true}
     },
     "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
     "auth": {
@@ -99,10 +100,14 @@ EOF
 fi
 
 echo "Starting OpenClaw gateway in non-interactive mode..."
-export NO_ONBOARD=1
-export OPENCLAW_NO_PROMPT=1
+export OPENCLAW_GATEWAY_NO_ONBOARD=1
+export OPENCLAW_GATEWAY_NO_PROMPT=1
 export CI=true
 
 # Final safety: use redirection to close any zombie prompts
-exec openclaw gateway run < /dev/null
+# Use flags for token, port, and bind to reduce reliance on JSON if needed
+exec openclaw gateway run \
+    --token "${OPENCLAW_GATEWAY_TOKEN}" \
+    --port "${OPENCLAW_GATEWAY_PORT}" \
+    --bind "custom" < /dev/null
 
