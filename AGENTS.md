@@ -4,8 +4,9 @@ This project provides a standardized Docker environment for running an OpenClaw 
 
 ## Technical Context
 
-- **Base Image**: `ghcr.io/astral-sh/uv:python:3.14-slim`
+- **Base Image**: `alpine/openclaw:main` (Debian-based variant recommended).
 - **Runtime Environment**: Docker (standard or rootless).
+- **Runtimes**: Node.js (v25+) and Bun (v1.2+) pre-installed.
 - **Network**: Uses external network `${CF_NETWORK}` by default.
 - **Port**: Gateway listens on port `18789` (Internal).
 - **Access**: Accessed via proxy (e.g. Traefik) or internal network. Host port bindings removed.
@@ -28,6 +29,7 @@ The configuration is strictly environment-driven. `entrypoint.sh` maps variables
 - `OPENAI_API_KEY`/`OPENAI_API_BASE` -> `agents.defaults.models` details and fallback `.env` for Opencode/OpenSpec.
 - `BROWSERLESS_BASE_URL`/`TOKEN` -> `skills.config.browserless`.
 - `OPENCLAW_GATEWAY_*` -> `gateway` root settings.
+- **Plugin Suite**: `opencode-antigravity-auth` and `opencode-plugin-openspec` are injected into `opencode.json` via `entrypoint.sh`.
 
 ## Build Process
 

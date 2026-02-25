@@ -6,8 +6,8 @@ A high-performance, containerized OpenClaw Gateway environment optimized for age
 
 - **Agentic Power**: Pre-configured with `gh` CLI and `uv` to enable agents to perform complex CI/CD and Python development tasks out of the box.
 - **Docker-in-Docker (DooD)**: Built to manage sibling containers. Designed specifically for development workflows where the agent needs to build or inspect Docker-based repositories.
-- **Zero-Config Startup**: Automatically generates a compliant `v2026` OpenClaw configuration from environment variables via a smart entrypoint script.
-- **Security & Efficiency**: Uses `uv` for lightning-fast Python package management and implements file descriptor optimizations to prevent common gateway bottlenecks.
+- **Zero-Config Plugin Suite**: Automatically installs and configures `opencode-antigravity-auth` and `opencode-plugin-openspec` for immediate use.
+- **Security & Efficiency**: Uses `uv` and `bun` for lightning-fast package management and implements file descriptor optimizations.
 - **Clean Repo Policy**: Maintains a strict `llms_txt` policy to keep documentation in sync without cluttering the git history.
 
 ## Included Tools
@@ -18,8 +18,8 @@ A high-performance, containerized OpenClaw Gateway environment optimized for age
 | **UV** | High-performance Python package installer and resolver. |
 | **GH CLI** | GitHub's official command-line tool for agentic CI/CD. |
 | **Docker CLI** | For managing Docker environments (DooD mode). |
-| **Node.js** | Runtime for OpenClaw and custom scripts. |
-| **Opencode** | Specialized AI agent for code modification and repository analysis. |
+| **Node.js & Bun** | Runtimes for OpenClaw, Opencode, and high-performance JS tasks. |
+| **Opencode Plugins** | Pre-configured with **Antigravity Auth** (OAuth2) and **OpenSpec Architect**. |
 | **OpenSpec (OPSX)** | Specification-driven agentic workflow tool for structured development. |
 
 ## Quick Start (Dokploy / Docker Compose)
