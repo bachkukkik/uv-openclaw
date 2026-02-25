@@ -14,19 +14,27 @@ This document summarizes the test cases conducted to verify the repository upgra
 | **Auth Alignment** | Verify Dashboard connects via proxy with tokenized URL. | **PASS** |
 | **Network Isolation** | Verify no direct host port bindings exist. | **PASS** |
 
-## Full System Check (Automated) - Tue Feb 24 2026
+## Full System Check (Automated) - Wed Feb 25 2026
 
-I performed a full system check after integrating OpenSpec to ensure repository stability and tool availability.
+I performed a full system check after integrating `opencode-antigravity-auth` and `opencode-plugin-openspec` to ensures repository stability and tool availability.
 
 | Component | Status | Verification Command |
 | --- | --- | --- |
 | **Python Tooling** | **PASS** | `uv --version` (v0.5.21) |
 | **GitHub CLI** | **PASS** | `gh --version` (v2.86.0) |
 | **Docker CLI** | **PASS** | `docker --version` (v28.5.1) |
-| **Node.js** | **PASS** | `node --version` (v25.5.0) |
-| **OpenSpec** | **PASS** | `npm view @fission-ai/openspec version` (v1.2.0) |
-| **Build Integrity** | **PASS** | `Dockerfile` and `entrypoint.sh` updated for OpenSpec. |
-| **Side-by-Side** | **PASS** | `PATH` and `mkdir` verified in `entrypoint.sh` for both suites. |
+| **Node.js & Bun** | **PASS** | `bun --version` (v1.2.2) |
+| **Antigravity Auth** | **PASS** | `verify_opencode_config.sh` (JSON syntax) |
+| **OpenSpec Plugin** | **PASS** | `openspec --version` / `opsx --version` |
+| **Build Integrity** | **PASS** | `Dockerfile` and `entrypoint.sh` updated with global `bun` and `npm -g`. |
+
+### Verified Test Cases
+
+| Case | Result | Notes |
+| --- | --- | --- |
+| TC-001 | **PASS** | `opencode.json` generation produces valid JSON. |
+| TC-002 | **PASS** | Plugin array contains `antigravity-auth` and `openspec`. |
+| TC-003 | **PASS** | All Antigravity and Gemini CLI models correctly mapped in config. |
 
 ---
 
@@ -61,15 +69,17 @@ Check the logs to ensure the gateway started with the preconfigured token:
 # Verify OpenClaw Gateway
 cat /home/node/.openclaw/openclaw.json
 
-# Verify Opencode CLI configuration
+# Verify Opencode CLI configuration & Plugins
 cat /home/node/.config/opencode/opencode.json
 
 # Verify OpenSpec CLI
 openspec --version
-opsx --version
+
+# Verify Bun
+bun --version
 ```
 
-*Expected Result: All commands return versions/output without "command not found" or "permission denied" (socket error). Opencode should display its help menu.*
+*Expected Result: All commands return versions/output. `opencode.json` must contain the "plugin" array with Antigravity and OpenSpec.*
 
 ### 3. Verification of Sandbox Docker Capability
 

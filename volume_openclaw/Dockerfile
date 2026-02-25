@@ -40,18 +40,21 @@ RUN printf '#!/bin/sh\ncd /app && node /app/scripts/run-node.mjs "$@"' > /usr/lo
 # 5. Install uv (with explicit path)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 6. Install Opencode
+# 6. Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+
+# 7. Install Opencode
 RUN curl -fsSL https://opencode.ai/install | bash
 
-# 7. Install Openspec
+# 8. Install Openspec (Global)
 RUN npm install -g @fission-ai/openspec@latest
 
-# 7. Setup environment
+# 9. Setup environment
 ENV HOME=/home/node
 ENV CI=true
 ENV TERM=xterm-256color
-# Add all possible OpenClaw/uv/opencode paths to PATH
-ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/root/.opencode/bin:/root/.cargo/bin:/root/.local/bin
+# Add all possible OpenClaw/uv/opencode/bun/openspec paths to PATH
+ENV PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/root/.opencode/bin:/root/.openspec/bin:/root/.cargo/bin:/root/.local/bin:/root/.bun/bin
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
