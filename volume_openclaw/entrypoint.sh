@@ -42,7 +42,7 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     "mode": "merge",
     "providers": {
       "${DEFAULT_MODEL_PROVIDER}": {
-        "baseUrl": "${OPENAI_API_BASE}",
+        "baseUrl": "${OPENAI_API_BASE_URL}",
         "apiKey": "${OPENAI_API_KEY}",
         "api": "openai-completions",
         "models": [
@@ -97,7 +97,7 @@ if [ ! -f /home/node/.env ]; then
     echo "Generating Opencode fallback .env..."
     cat <<EOF > /home/node/.env
 OPENAI_API_KEY=${OPENAI_API_KEY}
-OPENAI_API_BASE=${OPENAI_API_BASE}
+OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL}
 OPENAI_MODEL=${OPENAI_DEFAULT_MODEL}
 EOF
 fi
@@ -105,9 +105,6 @@ fi
 # 2. Configure Opencode Global Config
 if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_CONFIG}" = "true" ]; then
     echo "Writing global Opencode configuration..."
-    
-    # Construct base URL for OpenCode options
-    OPENCODE_BASE_URL="${OPENAI_API_BASE}"
     
     cat <<EOF > /home/node/.config/opencode/opencode.json
 {
@@ -121,7 +118,8 @@ if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_
       "npm": "@ai-sdk/openai-compatible",
       "name": "${DEFAULT_MODEL_PROVIDER}",
       "options": {
-        "baseURL": "${OPENCODE_BASE_URL}"
+        "baseURL": "${OPENAI_API_BASE_URL}",
+        "apiKey": "${OPENAI_API_KEY}"
       },
       "models": {
         "${OPENAI_DEFAULT_MODEL}": {

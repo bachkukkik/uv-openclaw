@@ -26,7 +26,7 @@ These variables configure the primary model used by agents.
 | `OPENAI_DEFAULT_MODEL_CONTEXT_WINDOW` | Maximum context tokens for the primary model. | `262144` |
 | `OPENAI_DEFAULT_MODEL_MAX_TOKENS` | Maximum completion tokens for the primary model. | `8192` |
 | `OPENAI_API_KEY` | API Key for the default provider. | - |
-| `OPENAI_API_BASE` | Base URL for the default provider (shared by OpenClaw & Opencode). | `https://api.openai.com/v1` |
+| `OPENAI_API_BASE_URL` | Base URL for the default provider (shared by OpenClaw & Opencode). | `https://api.openai.com/v1` |
 
 ## Browser Control
 
