@@ -20,6 +20,8 @@ services:
           memory: 1G
     volumes:
       - openclaw_config:/home/node/.openclaw
+      - opencode_config:/home/node/.config/opencode
+      - gh_config:/home/node/.config/gh
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     healthcheck:
@@ -28,16 +30,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - dokploy-network
-      - cf-network
 
 volumes:
   openclaw_config:
-
-networks:
-  dokploy-network:
-    external: true
-  cf-network:
-    name: ${CF_NETWORK:-portainer-cloudflare-traefik_default}
-    external: true
+  opencode_config:
+  gh_config:
