@@ -9,8 +9,9 @@ export PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/root/.opencode/b
 
 # Ensure directory structure exists
 mkdir -p /home/node/.openclaw
-mkdir -p /home/node/.config/opencode
 mkdir -p /home/node/.openclaw/workspace
+mkdir -p /home/node/.config/gh
+mkdir -p /home/node/.config/opencode
 
 # 1. Initialize or Reset configuration
 if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}" = "true" ]; then
