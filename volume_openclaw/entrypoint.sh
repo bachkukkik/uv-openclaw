@@ -19,10 +19,12 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     # Use 18789 if port is not set
     OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
 
-    # Handle both BASE and BASE_URL, and provide a default for OpenAI
-    OPENAI_API_BASE_URL="${OPENAI_API_BASE_URL:-${OPENAI_API_BASE}}"
-    if [ "${DEFAULT_MODEL_PROVIDER}" = "openai" ] && [ -z "${OPENAI_API_BASE_URL}" ]; then
-        OPENAI_API_BASE_URL="https://api.openai.com/v1"
+    # Standardize Base URL and handle legacy fallbacks
+    OPENAI_BASE_URL="${OPENAI_BASE_URL:-${OPENAI_API_BASE_URL:-${OPENAI_API_BASE}}}"
+    
+    # Provide a default for OpenAI if the provider is openai and no URL is set
+    if [ "${DEFAULT_MODEL_PROVIDER}" = "openai" ] && [ -z "${OPENAI_BASE_URL}" ]; then
+        OPENAI_BASE_URL="https://api.openai.com/v1"
     fi
     
     # We write the full JSON manually to bypass v2026 CLI hangs (142% CPU)
@@ -48,7 +50,7 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     "mode": "merge",
     "providers": {
       "${DEFAULT_MODEL_PROVIDER}": {
-        "baseUrl": "${OPENAI_API_BASE}",
+        "baseUrl": "${OPENAI_BASE_URL}",
         "apiKey": "${OPENAI_API_KEY}",
         "api": "openai-completions",
         "models": [
@@ -103,17 +105,14 @@ if [ ! -f /home/node/.env ]; then
     echo "Generating Opencode fallback .env..."
     cat <<EOF > /home/node/.env
 OPENAI_API_KEY=${OPENAI_API_KEY}
-OPENAI_API_BASE=${OPENAI_API_BASE}
+OPENAI_BASE_URL=${OPENAI_BASE_URL}
 OPENAI_MODEL=${OPENAI_DEFAULT_MODEL}
 EOF
 fi
 
 # 2. Configure Opencode Global Config
-if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_CONFIG}" = "true" ]; then
+if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVER_CONFIG}" = "true" ]; then
     echo "Writing global Opencode configuration..."
-    
-    # Construct base URL for OpenCode options
-    OPENCODE_BASE_URL="${OPENAI_API_BASE}"
     
     cat <<EOF > /home/node/.config/opencode/opencode.json
 {
@@ -127,7 +126,7 @@ if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_
       "npm": "@ai-sdk/openai-compatible",
       "name": "${DEFAULT_MODEL_PROVIDER}",
       "options": {
-        "baseURL": "${OPENCODE_BASE_URL}",
+        "baseURL": "${OPENAI_BASE_URL}",
         "apiKey": "${OPENAI_API_KEY}"
       },
       "models": {

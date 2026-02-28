@@ -53,7 +53,7 @@ services:
 | `OPENAI_DEFAULT_MODEL_CONTEXT_WINDOW` | Default context window tokens | `262144` |
 | `OPENAI_DEFAULT_MODEL_MAX_TOKENS` | Default max completion tokens | `8192` |
 | `OPENAI_API_KEY` | API Key for OpenAI or LiteLLM | - |
-| `OPENAI_API_BASE_URL` | Base URL for OpenAI/LiteLLM (used by OpenClaw & Opencode) | `https://api.openai.com/v1` |
+| `OPENAI_BASE_URL` | Base URL for OpenAI/LiteLLM (used by OpenClaw & Opencode) | `https://api.openai.com/v1` |
 | `GEMINI_API_KEY` | API Key for Google Gemini | - |
 | `BROWSERLESS_BASE_URL` | WebSocket URL for Browserless | - |
 
