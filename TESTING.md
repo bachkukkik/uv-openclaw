@@ -2,7 +2,7 @@
 
 This document summarizes the test cases conducted to verify the repository upgrade and provides a manual test case for deployment verification.
 
-## Test Results (Sun Feb 22 2026)
+## Test Results (Sat Feb 28 2026)
 
 | Test Case | Description | Result |
 | --- | --- | --- |
@@ -13,6 +13,8 @@ This document summarizes the test cases conducted to verify the repository upgra
 | **Exit 137 Guard** | Verify shell entry no longer triggers onboarding loops or memory spikes. | **PASS** |
 | **Auth Alignment** | Verify Dashboard connects via proxy with tokenized URL. | **PASS** |
 | **Network Isolation** | Verify no direct host port bindings exist. | **PASS** |
+| **Symlink Override Guard** | Verify `openclaw` wrapper creation safely removes symlink before writing. | **PASS** |
+| **Node.js Initialization** | Verify container starts without `SyntaxError` in `openclaw.mjs`. | **PASS** |
 
 ## Full System Check (Automated) - Wed Feb 25 2026
 

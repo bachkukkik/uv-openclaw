@@ -34,7 +34,8 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # 4. Create openclaw symlink for compatibility with entrypoint.sh
 # The base image has app in /app and uses scripts/run-node.mjs
-RUN printf '#!/bin/sh\ncd /app && node /app/scripts/run-node.mjs "$@"' > /usr/local/bin/openclaw && \
+RUN rm -f /usr/local/bin/openclaw && \
+    printf '#!/bin/sh\ncd /app && node /app/scripts/run-node.mjs "$@"' > /usr/local/bin/openclaw && \
     chmod +x /usr/local/bin/openclaw
 
 # 5. Install uv (with explicit path)
