@@ -173,7 +173,7 @@ Verify that the gateway can bootstrap from zero without user input.
 
 ### Case 2: Incomplete LLM Environment
 
-- **Scenario**: `OPENAI_API_BASE_URL` is provided without `OPENAI_API_KEY`.
+- **Scenario**: `OPENAI_BASE_URL` is provided without `OPENAI_API_KEY`.
 - **Fail Message**: Gateway may start but agent tasks will fail with `401 Unauthorized`.
 - **Verification**: Run `openclaw status --deep` inside the container to check provider health.
 
