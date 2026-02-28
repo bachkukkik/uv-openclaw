@@ -111,7 +111,7 @@ EOF
 fi
 
 # 2. Configure Opencode Global Config
-if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVER_CONFIG}" = "true" ]; then
+if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_CONFIG}" = "true" ]; then
     echo "Writing global Opencode configuration..."
     
     cat <<EOF > /home/node/.config/opencode/opencode.json
@@ -131,7 +131,7 @@ if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVER_CONF
       },
       "models": {
         "${OPENAI_DEFAULT_MODEL}": {
-          "name": "Default Model"
+          "name": "${DEFAULT_MODEL_PROVIDER}"
         }
       }
     },
