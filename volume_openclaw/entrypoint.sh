@@ -131,7 +131,7 @@ if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_
       },
       "models": {
         "${OPENAI_DEFAULT_MODEL}": {
-          "name": "${DEFAULT_MODEL_PROVIDER}"
+          "name": "${OPENAI_DEFAULT_MODEL}"
         }
       }
     },
