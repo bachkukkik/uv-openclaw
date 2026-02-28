@@ -18,6 +18,12 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
     
     # Use 18789 if port is not set
     OPENCLAW_GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
+
+    # Handle both BASE and BASE_URL, and provide a default for OpenAI
+    OPENAI_API_BASE_URL="${OPENAI_API_BASE_URL:-${OPENAI_API_BASE}}"
+    if [ "${DEFAULT_MODEL_PROVIDER}" = "openai" ] && [ -z "${OPENAI_API_BASE_URL}" ]; then
+        OPENAI_API_BASE_URL="https://api.openai.com/v1"
+    fi
     
     # We write the full JSON manually to bypass v2026 CLI hangs (142% CPU)
     # and to ensure a perfect meta-tagged config that satisfies the gateway.
