@@ -10,6 +10,7 @@ export PATH=$PATH:/root/.openclaw/bin:/home/node/.openclaw/bin:/root/.opencode/b
 # Ensure directory structure exists
 mkdir -p /home/node/.openclaw
 mkdir -p /home/node/.openclaw/workspace
+mkdir -p /home/node/.openclaw/skills
 mkdir -p /home/node/.config/gh
 mkdir -p /home/node/.config/opencode
 
@@ -84,8 +85,8 @@ if [ ! -f /home/node/.openclaw/openclaw.json ] || [ "${OPENCLAW_OVERRIDE_CONFIG}
       "bind": "custom",
       "customBindHost": "0.0.0.0",
     "controlUi": {
-      "allowInsecureAuth": ${OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH},
-      "dangerouslyDisableDeviceAuth": ${OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH},
+      "allowInsecureAuth": ${OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH:-false},
+      "dangerouslyDisableDeviceAuth": ${OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH:-false},
       "dangerouslyAllowHostHeaderOriginFallback": ${OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK:-true}
     },
     "trustedProxies": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.1/32"],
@@ -112,13 +113,14 @@ EOF
 fi
 
 # 2. Configure Opencode Global Config
-if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_CONFIG}" = "true" ]; then
+if [ ! -f /home/node/.config/opencode/opencode.jsonc ] || [ "${OPENCODE_OVERRIDE_CONFIG}" = "true" ]; then
     echo "Writing global Opencode configuration..."
     
-    cat <<EOF > /home/node/.config/opencode/opencode.json
+    cat <<EOF > /home/node/.config/opencode/opencode.jsonc
 {
   "\$schema": "https://opencode.ai/config.json",
   "model": "$DEFAULT_MODEL_PROVIDER/$OPENAI_DEFAULT_MODEL",
+  "small_model": "$DEFAULT_MODEL_PROVIDER/$OPENAI_DEFAULT_MODEL",
   "plugin": [
     "opencode-antigravity-auth@latest",
     "opencode-plugin-openspec"
@@ -129,7 +131,9 @@ if [ ! -f /home/node/.config/opencode/opencode.json ] || [ "${OPENCODE_OVERRIDE_
       "name": "$DEFAULT_MODEL_PROVIDER",
       "options": {
         "baseURL": "$OPENAI_BASE_URL",
-        "apiKey": "$OPENAI_API_KEY"
+        "apiKey": "$OPENAI_API_KEY",
+        "timeout": 600000,
+        "setCacheKey": true
       },
       "models": {
         "$OPENAI_DEFAULT_MODEL": {
@@ -143,15 +147,31 @@ EOF
     echo "Global Opencode configuration written."
 fi
 
+# 3. Synchronize Skills (learn, opencode-controller, openspec)
+if [ -d /usr/share/openclaw/skills ]; then
+    echo "Synchronizing skills from template..."
+    # Copy missing files/directories from template to persistent volume
+    # Use -n to avoid overwriting user customizations if they exist
+    cp -rn /usr/share/openclaw/skills/* /home/node/.openclaw/skills/
+    # Ensure correct ownership
+    chown -R node:node /home/node/.openclaw/skills
+    echo "Skills synchronized."
+fi
+
 echo "Starting OpenClaw gateway in non-interactive mode..."
 export OPENCLAW_GATEWAY_NO_ONBOARD=1
 export OPENCLAW_GATEWAY_NO_PROMPT=1
 export CI=true
 
 # Final safety: use redirection to close any zombie prompts
-# Use flags for token, port, and bind to reduce reliance on JSON if needed
-exec openclaw gateway run \
-    --token "${OPENCLAW_GATEWAY_TOKEN}" \
-    --port "${OPENCLAW_GATEWAY_PORT}" \
-    --bind "custom" < /dev/null
+# If arguments are provided, execute them instead of the default gateway
+if [ $# -gt 0 ]; then
+    exec "$@"
+else
+    # Use flags for token, port, and bind to reduce reliance on JSON if needed
+    exec openclaw gateway run \
+        --token "${OPENCLAW_GATEWAY_TOKEN}" \
+        --port "${OPENCLAW_GATEWAY_PORT}" \
+        --bind "custom" < /dev/null
+fi
 
