@@ -34,7 +34,7 @@ I performed a full system check after integrating `opencode-antigravity-auth` an
 
 | Case | Result | Notes |
 | --- | --- | --- |
-| TC-001 | **PASS** | `opencode.json` generation produces valid JSON. |
+| TC-001 | **PASS** | `opencode.jsonc` generation produces valid JSON. |
 | TC-002 | **PASS** | Plugin array contains `antigravity-auth` and `openspec`. |
 | TC-003 | **PASS** | All Antigravity and Gemini CLI models correctly mapped in config. |
 
@@ -72,7 +72,7 @@ Check the logs to ensure the gateway started with the preconfigured token:
 cat /home/node/.openclaw/openclaw.json
 
 # Verify Opencode CLI configuration & Plugins
-cat /home/node/.config/opencode/opencode.json
+cat /home/node/.config/opencode/opencode.jsonc
 
 # Verify OpenSpec CLI
 openspec --version
@@ -81,7 +81,7 @@ openspec --version
 bun --version
 ```
 
-*Expected Result: All commands return versions/output. `opencode.json` must contain the "plugin" array with Antigravity and OpenSpec.*
+*Expected Result: All commands return versions/output. `opencode.jsonc` must contain the "plugin" array with Antigravity and OpenSpec.*
 
 ### 3. Verification of Sandbox Docker Capability
 
@@ -123,7 +123,7 @@ opencode "Analyze the entrypoint.sh script and summarize how it handles OpenClaw
 
 I implemented a robust bypass for the v2026 onboarding TUI by using CI environment variables and input redirection.
 
-#### [entrypoint.sh](file:///Users/bachkukkik/Archives/GitHub_Repo/sandbox/uv-openclaw/volume_openclaw/entrypoint.sh)
+#### [entrypoint.sh](volume_openclaw/entrypoint.sh)
 
 ```diff
  echo "Starting OpenClaw gateway with manual-aligned config..."
@@ -189,7 +189,7 @@ echo "OpenSpec: $(openspec --version 2>/dev/null || echo 'Not found')"
 echo "Node: $(node --version)"
 echo "GH: $(gh --version)"
 echo "OpenClaw JSON: $(ls -l /home/node/.openclaw/openclaw.json)"
-echo "OpenCode JSON: $(ls -l /home/node/.config/opencode/opencode.json)"
+echo "OpenCode JSON: $(ls -l /home/node/.config/opencode/opencode.jsonc)"
 echo "--------------------"
 ```
 

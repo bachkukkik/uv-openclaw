@@ -13,7 +13,7 @@ This document provides a comprehensive list of all environment variables support
 | `OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Disable one-time device pairing requirement. | `true` |
 | `OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK` | Allow Host-header origin fallback for non-loopback access. | `true` |
 | `OPENCLAW_OVERRIDE_CONFIG` | If `true`, overwrites `openclaw.json` on every startup. | `false` |
-| `OPENCODE_OVERRIDE_CONFIG` | If `true`, resets `opencode.json` and its plugins on every startup. | `false` |
+| `OPENCODE_OVERRIDE_CONFIG` | If `true`, resets `opencode.jsonc` and its plugins on every startup. | `false` |
 
 ## LLM Model configuration
 

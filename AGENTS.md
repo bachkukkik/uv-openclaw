@@ -29,7 +29,7 @@ The configuration is strictly environment-driven. `entrypoint.sh` maps variables
 - `OPENAI_API_KEY`/`OPENAI_BASE_URL` -> `agents.defaults.models` details and fallback `.env` for Opencode/OpenSpec.
 - `BROWSERLESS_BASE_URL`/`TOKEN` -> `skills.config.browserless`.
 - `OPENCLAW_GATEWAY_*` -> `gateway` root settings.
-- **Plugin Suite**: `opencode-antigravity-auth` and `opencode-plugin-openspec` are injected into `opencode.json` via `entrypoint.sh`.
+- **Plugin Suite**: `opencode-antigravity-auth` and `opencode-plugin-openspec` are injected into `opencode.jsonc` via `entrypoint.sh`.
 
 ## Build Process
 

@@ -47,7 +47,7 @@ services:
 | `OPENCLAW_GATEWAY_PORT` | Internal port for the Gateway | `18789` |
 | `OPENCLAW_GATEWAY_DANGEROUSLY_ALLOW_HOST_HEADER_ORIGIN_FALLBACK` | Allow Host-header origin fallback for non-loopback access | `true` |
 | `OPENCLAW_OVERRIDE_CONFIG` | Overwrite `openclaw.json` on every start | `false` |
-| `OPENCODE_OVERRIDE_CONFIG` | Overwrite `opencode.json` on every start | `false` |
+| `OPENCODE_OVERRIDE_CONFIG` | Overwrite `opencode.jsonc` on every start | `false` |
 | `DEFAULT_MODEL_PROVIDER` | Provider for the primary agent model | `openai` |
 | `OPENAI_DEFAULT_MODEL` | ID of the primary agent model | `openai/gpt-4o` |
 | `OPENAI_DEFAULT_MODEL_CONTEXT_WINDOW` | Default context window tokens | `262144` |
@@ -58,7 +58,7 @@ services:
 | `BROWSERLESS_BASE_URL` | WebSocket URL for Browserless | - |
 
 > [!TIP]
-> For a full list of all supported environment variables, see [ENV_VARS.md](file:///Users/bachkukkik/Archives/GitHub_Repo/sandbox/uv-openclaw/ENV_VARS.md).
+> For a full list of all supported environment variables, see [ENV_VARS.md](ENV_VARS.md).
 
 ## Resource Requirements
 
